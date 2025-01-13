@@ -42,26 +42,26 @@ export async function runContainer(runconfig: Build) {
     const outputstream = fs.createWriteStream(`${path}runout.txt`);
 
     try {
-        if (prevConainerId) {
-            console.log('Stopping and Removing Previous Container');
-            const prevContainer = docker.getContainer(prevConainerId);
-            await prevContainer.stop();
-            await prevContainer.remove();
-            console.log('Previous Container Stopped and Removed');
-        } else {
-            //search for container with same name
-            const query = `SELECT * FROM projects WHERE name = '${name}'`;
-            const resuilt = await connection.query(query);
-            if (resuilt.rowCount ? resuilt.rowCount > 0 : false) {
-                const prevConainerId = resuilt.rows[0].container_id;
-                if (prevConainerId) {
-                    console.log('Stopping and Removing Previous Container');
-                    const prevContainer = docker.getContainer(prevConainerId);
-                    await prevContainer.stop();
-                    await prevContainer.remove();
-                }
-            }
-        }
+        // if (prevConainerId) {
+        //     console.log('Stopping and Removing Previous Container');
+        //     const prevContainer = docker.getContainer(prevConainerId);
+        //     await prevContainer.stop();
+        //     await prevContainer.remove();
+        //     console.log('Previous Container Stopped and Removed');
+        // } else {
+        //     //search for container with same name
+        //     const query = `SELECT * FROM projects WHERE name = '${name}'`;
+        //     const resuilt = await connection.query(query);
+        //     if (resuilt.rowCount ? resuilt.rowCount > 0 : false) {
+        //         const prevConainerId = resuilt.rows[0].container_id;
+        //         if (prevConainerId) {
+        //             console.log('Stopping and Removing Previous Container');
+        //             const prevContainer = docker.getContainer(prevConainerId);
+        //             await prevContainer.stop();
+        //             await prevContainer.remove();
+        //         }
+        //     }
+        // }
         const container = await docker.createContainer({
             Image: name,
             name: name,
