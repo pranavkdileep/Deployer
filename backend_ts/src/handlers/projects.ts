@@ -1,6 +1,6 @@
 import { Response,Request } from "express";
 import { connection } from "../lib/db";
-import { buildImage } from "../managers/docker";
+import { buildImage, stopContainer } from "../managers/docker";
 import { Build } from "../dtos/build";
 
 export const getProjectslist = async (req:Request,res:Response) => {
@@ -24,6 +24,21 @@ export const buildImageHandler = async (req:Request<{},{},Build>,res:Response) =
             buildImage(buildconfig);
         }catch(err){
             res.status(500).json({message:'Error Building Docker Image'});
+        }
+    }
+}
+
+export const stopContainerHandler = async (req:Request<{},{},{name:string}>,res:Response) => {
+    const {name} = req.body;
+    if(!name){
+        res.status(400).json({message:'Invalid Request!'});
+    }
+    else{
+        try{
+            res.status(200).json({message:'Stopping Container Requested'});
+            stopContainer(name);
+        }catch(err){
+            res.status(500).json({message:'Error Stopping Container'});
         }
     }
 }
