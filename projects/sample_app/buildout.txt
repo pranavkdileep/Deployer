@@ -30,5 +30,5 @@
 #9 exporting to image
 #9 exporting layers done
 #9 writing image sha256:2aa2ec99f7540c137ce0e8cc9de50f1601c81ee06d9f57134ed61e6c2519935e done
-#9 naming to docker.io/library/example done
+#9 naming to docker.io/library/sample_app done
 #9 DONE 0.0s
