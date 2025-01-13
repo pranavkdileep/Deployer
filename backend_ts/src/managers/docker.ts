@@ -1,7 +1,10 @@
-import { Build } from '../dtos/build';
+import { Build, Run } from '../dtos/build';
 import fs from 'fs';
 const { spawnSync } = require('child_process');
 import { connection } from "../lib/db";
+import Dockerode from 'dockerode';
+
+const docker = new Dockerode();
 
 
 export async function buildImage(buildconfig:Build){
@@ -18,6 +21,11 @@ export async function buildImage(buildconfig:Build){
             const query = `UPDATE projects SET buildstatus = 'success' WHERE name = '${name}' RETURNING *`;
             const resuilt = await connection.query(query);
             console.log(resuilt.rows);
+            runContainer({
+                name:name,
+                port:8000,
+                image:name
+            });
         }
         else{   
             console.log('Error Building Docker Image');
@@ -25,4 +33,35 @@ export async function buildImage(buildconfig:Build){
             const resuilt = await connection.query(query);
             console.log(resuilt.rows);
         }
+}
+
+export async function runContainer(runconfig: Run) {
+    const { name, image, port } = runconfig;
+    const portstring = `${port}/tcp`;
+    const path = `../projects/${name}/`;
+    const outputstream = fs.createWriteStream(`${path}runout.txt`);
+
+    try {
+        const container = await docker.createContainer({
+            Image: image,
+            name: name,
+            ExposedPorts: {
+                [portstring]: {}
+            },
+            HostConfig: {
+                PortBindings: {
+                    [portstring]: [
+                        {
+                            HostPort: `${port}`
+                        }
+                    ]
+                }
+            }
+        });
+        console.log(container.id);
+        await docker.getContainer(container.id).start();
+        console.log(`Docker Container ${name} started on port ${port}`);
+    } catch (err) {
+        console.log('Error Running Docker Container', err);
+    }
 }
