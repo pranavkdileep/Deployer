@@ -47,6 +47,7 @@ export async function runContainer(runconfig: Build) {
             const prevContainer = docker.getContainer(prevConainerId);
             await prevContainer.stop();
             await prevContainer.remove();
+            console.log('Previous Container Stopped and Removed');
         } else {
             //search for container with same name
             const query = `SELECT * FROM projects WHERE name = '${name}'`;
