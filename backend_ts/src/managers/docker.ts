@@ -25,7 +25,6 @@ export async function buildImage(buildconfig: Build) {
             name: name,
             port: port,
             dockerfile: dockerfile,
-            prevConainerId: prevConainerId
         });
     }
     else {
