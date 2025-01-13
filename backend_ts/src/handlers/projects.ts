@@ -1,6 +1,6 @@
 import { Response,Request } from "express";
 import { connection } from "../lib/db";
-import { buildImage } from "../managers/buildimage";
+import { buildImage } from "../managers/docker";
 import { Build } from "../dtos/build";
 
 export const getProjectslist = async (req:Request,res:Response) => {
