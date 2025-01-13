@@ -1,0 +1,9 @@
+EMAIL=test
+PASSWORD=pass
+JWT_SECRET=secret123
+PGSQL_USER=postgres.xpxzytszbkhbpmlttmog
+PGSQL_PASSWORD="Pranavkd44#"
+PGSQL_HOST=aws-0-ap-southeast-1.pooler.supabase.com
+PGSQL_PORT=6543
+PGSQL_DATABASE=postgres
+PGSQL_POOL_MODE=transaction
