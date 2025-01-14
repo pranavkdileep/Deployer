@@ -8,7 +8,7 @@ const docker = new Dockerode();
 
 
 export async function buildImage(buildconfig: Build) {
-    const { name, dockerfile, port, prevConainerId } = buildconfig;
+    const { name, dockerfile, port } = buildconfig;
     const path = `../projects/${name}/`;
     //build the image in the path
     const buildouttxt = fs.openSync(`${path}buildout.txt`, 'w');
@@ -36,32 +36,20 @@ export async function buildImage(buildconfig: Build) {
 }
 
 export async function runContainer(runconfig: Build) {
-    const { name, port, prevConainerId } = runconfig;
+    const { name, port } = runconfig;
     const portstring = `${port}/tcp`;
     const path = `../projects/${name}/`;
     const outputstream = fs.createWriteStream(`${path}runout.txt`);
 
     try {
-        // if (prevConainerId) {
-        //     console.log('Stopping and Removing Previous Container');
-        //     const prevContainer = docker.getContainer(prevConainerId);
-        //     await prevContainer.stop();
-        //     await prevContainer.remove();
-        //     console.log('Previous Container Stopped and Removed');
-        // } else {
-        //     //search for container with same name
-        //     const query = `SELECT * FROM projects WHERE name = '${name}'`;
-        //     const resuilt = await connection.query(query);
-        //     if (resuilt.rowCount ? resuilt.rowCount > 0 : false) {
-        //         const prevConainerId = resuilt.rows[0].container_id;
-        //         if (prevConainerId) {
-        //             console.log('Stopping and Removing Previous Container');
-        //             const prevContainer = docker.getContainer(prevConainerId);
-        //             await prevContainer.stop();
-        //             await prevContainer.remove();
-        //         }
-        //     }
-        // }
+        // check any container running with name the remove it
+        const listcontainers = await docker.listContainers({ filters: { name: [name] } });
+        if (listcontainers.length > 0) {
+            console.log('Container Already Running, Stopping it');
+            const container = docker.getContainer(listcontainers[0].Id);
+            await container.stop();
+            await container.remove();
+        }
         const container = await docker.createContainer({
             Image: name,
             name: name,
@@ -102,7 +90,16 @@ export async function stopContainer(name: string) {
 }
 
 export async function startContainer(name: string) {
-    
+    try {
+        console.log('starting Container ' + name);
+        const listcontainers = await docker.listImages();
+        console.log(listcontainers);
+        const container = docker.getContainer(listcontainers[0].Id);
+        await container.start();
+        const query = `UPDATE projects SET container_id = NULL WHERE name = '${name}' RETURNING *`;
+    }catch(err){
+        console.log('Error Stopping Docker Container',err);
+    }
 }
 
 

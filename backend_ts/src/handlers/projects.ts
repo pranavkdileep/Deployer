@@ -1,6 +1,6 @@
 import { Response,Request } from "express";
 import { connection } from "../lib/db";
-import { buildImage, stopContainer } from "../managers/docker";
+import { buildImage, startContainer, stopContainer } from "../managers/docker";
 import { Build } from "../dtos/build";
 
 export const getProjectslist = async (req:Request,res:Response) => {
@@ -39,6 +39,21 @@ export const stopContainerHandler = async (req:Request<{},{},{name:string}>,res:
             stopContainer(name);
         }catch(err){
             res.status(500).json({message:'Error Stopping Container'});
+        }
+    }
+}
+
+export const startContainerHandler = async (req:Request<{},{},{name:string}>,res:Response) => {
+    const {name} = req.body;
+    if(!name){
+        res.status(400).json({message:'Invalid Request!'});
+    }
+    else{
+        try{
+            res.status(200).json({message:'Starting Container Requested'});
+            startContainer(name);
+        }catch(err){
+            res.status(500).json({message:'Error Starting Container'});
         }
     }
 }
