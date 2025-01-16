@@ -1,6 +1,6 @@
 import { Response,Request } from "express";
 import { connection } from "../lib/db";
-import { buildImage, startContainer, stopContainer } from "../managers/docker";
+import { buildImage, getContainerSates, startContainer, stopContainer } from "../managers/docker";
 import { Build } from "../dtos/build";
 
 export const getProjectslist = async (req:Request,res:Response) => {
@@ -55,5 +55,16 @@ export const startContainerHandler = async (req:Request<{},{},{name:string}>,res
         }catch(err){
             res.status(500).json({message:'Error Starting Container'});
         }
+    }
+}
+
+export const getProjectDetails = async (req:Request<{name:string},{}>,res:Response) => {
+    const {name} = req.body;
+    if(!name){
+        res.status(400).json({message:'Invalid Request!'});
+    }
+    else{
+        const sates = await getContainerSates(name);
+        res.status(200).json(sates);
     }
 }

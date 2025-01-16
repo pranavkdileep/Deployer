@@ -102,4 +102,14 @@ export async function startContainer(name: string) {
     }
 }
 
-
+export async function getContainerSates(name: string){
+    try {
+        console.log('Getting Container States ' + name);
+        const listcontainers = await docker.listContainers({ filters: { name: [name] } });
+        const container = docker.getContainer(listcontainers[0].Id);
+        const stats = await container.stats({stream:false});
+        return stats;
+    }catch(err){
+        console.log('Error Getting Docker Container States',err);
+    }
+}
