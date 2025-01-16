@@ -49,7 +49,7 @@ export const restartProject = async (name: string) => {
         let config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: '/api/projects/startcontainer',
+            url: '/api/projects/restartcontainer',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
@@ -100,3 +100,4 @@ export const startProject = async (name: string) => {
         }
     }
 }
+

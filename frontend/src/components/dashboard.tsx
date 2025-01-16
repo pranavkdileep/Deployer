@@ -54,7 +54,7 @@ function MetricCard({ title, value, description, icon, className }: MetricCardPr
 interface ProjectCardProps {
   name: string
   description: string
-  status: 'running' | 'stopped' | 'error'
+  status: 'running' | 'Stopped' | 'error'
   createdAt: string
   lastDeployed: string
   cpu: number
@@ -99,7 +99,7 @@ function ProjectCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {status === 'running' ? (
+          {status === 'running' ? (
               <>
               <DropdownMenuItem onClick={onStop}>
               <Power className="mr-2 h-4 w-4" />
@@ -110,12 +110,14 @@ function ProjectCard({
               Restart
             </DropdownMenuItem>
             </>
-            ):(<>
-            <DropdownMenuItem onClick={onStart}>
-              <Power className="mr-2 h-4 w-4" />
-              Start
-            </DropdownMenuItem>
-            </>)}
+            ):(status === 'Stopped' ? (<></>):(
+              <>
+              <DropdownMenuItem onClick={onStart}>
+                <Power className="mr-2 h-4 w-4" />
+                Start
+              </DropdownMenuItem>
+              </>
+            ))}
             <DropdownMenuItem onClick={onDelete} className="text-red-600">
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
@@ -126,7 +128,7 @@ function ProjectCard({
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4 text-sm">
           <span className={`flex items-center gap-2 ${status === 'running' ? 'text-green-500' :
-              status === 'stopped' ? 'text-gray-500' :
+              status === 'Stopped' ? 'text-gray-500' :
                 'text-red-500'
             }`}>
             <span className="h-2 w-2 rounded-full bg-current" />
@@ -322,7 +324,7 @@ export default function Dashboard() {
     const projects = data.projects.map((project) => ({
       name: project.name,
       description: project.description,
-      status: project.status as 'running' | 'stopped' | 'error',
+      status: project.status as 'running' | 'Stopped' | 'error',
       createdAt: formatRelativeTime(project.created_at),
       lastDeployed: formatRelativeTime(project.updated_at),
       cpu: parseInt(project.cpu),
@@ -411,7 +413,7 @@ export default function Dashboard() {
                       <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                         <div className="flex items-center gap-4">
                           <span className={`h-2 w-2 rounded-full ${project.status === 'running' ? 'bg-green-500' :
-                              project.status === 'stopped' ? 'bg-gray-500' :
+                              project.status === 'Stopped' ? 'bg-gray-500' :
                                 'bg-red-500'
                             }`} />
                           <div>

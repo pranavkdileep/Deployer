@@ -104,6 +104,18 @@ export async function startContainer(name: string) {
     }
 }
 
+export async function restartContainer(name: string) {
+    try {
+        console.log('restarting Container ' + name);
+        const listcontainers = await docker.listContainers({ filters: { name: [name] } });
+        console.log(listcontainers);
+        const container = docker.getContainer(listcontainers[0].Id);
+        await container.restart();
+    }catch(err){
+        console.log('Error restarting Docker Container',err);
+    }
+}
+
 export async function getContainerSates(name: string){
     try {
         console.log('Getting Container States ' + name);

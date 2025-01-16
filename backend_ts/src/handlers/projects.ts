@@ -1,6 +1,6 @@
 import { Response,Request } from "express";
 import { connection } from "../lib/db";
-import { buildImage, getContainerSates, startContainer, stopContainer } from "../managers/docker";
+import { buildImage, getContainerSates, startContainer, stopContainer,restartContainer } from "../managers/docker";
 import { Build } from "../dtos/build";
 
 export const getProjectslist = async (req:Request,res:Response) => {
@@ -66,5 +66,20 @@ export const getProjectDetails = async (req:Request<{name:string},{}>,res:Respon
     else{
         const sates = await getContainerSates(name);
         res.status(200).json(sates);
+    }
+}
+
+export const restartContainerHandler = async (req:Request<{},{},{name:string}>,res:Response) => {
+    const {name} = req.body;
+    if(!name){
+        res.status(400).json({message:'Invalid Request!'});
+    }
+    else{
+        try{
+            res.status(200).json({message:'Restarting Container Requested'});
+            restartContainer(name);
+        }catch(err){
+            res.status(500).json({message:'Error Restarting Container'});
+        }
     }
 }
