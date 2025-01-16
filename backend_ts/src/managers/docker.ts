@@ -40,6 +40,8 @@ export async function runContainer(runconfig: Build) {
     const portstring = `${port}/tcp`;
     const path = `../projects/${name}/`;
     const outputstream = fs.createWriteStream(`${path}runout.txt`);
+    //random port between 4500 and 4650
+    const hostport = Math.floor(Math.random() * (4650 - 4500 + 1)) + 4500;
 
     try {
         // check any container running with name the remove it
@@ -60,7 +62,7 @@ export async function runContainer(runconfig: Build) {
                 PortBindings: {
                     [portstring]: [
                         {
-                            HostPort: `${port}`
+                            HostPort: hostport.toString()
                         }
                     ]
                 }
@@ -68,9 +70,9 @@ export async function runContainer(runconfig: Build) {
         });
         console.log(container.id);
         await container.start();
-        const query = `UPDATE projects SET container_id = '${container.id}' WHERE name = '${name}' RETURNING *`;
+        const query = `UPDATE projects SET container_id = '${container.id}', hostport = ${hostport} WHERE name = '${name}' RETURNING *`;
         const resuilt = await connection.query(query);
-        console.log(`Docker Container ${name} started on port ${port}`);
+        console.log(`Docker Container ${name} started on port ${hostport}`);
     } catch (err) {
         console.log('Error Running Docker Container', err);
     }
@@ -82,7 +84,7 @@ export async function stopContainer(name: string) {
         const listcontainers = await docker.listContainers({ filters: { name: [name] } });
         console.log(listcontainers);
         const container = docker.getContainer(listcontainers[0].Id);
-        await container.stop();
+        await container.pause();
         const query = `UPDATE projects SET container_id = NULL WHERE name = '${name}' RETURNING *`;
     }catch(err){
         console.log('Error Stopping Docker Container',err);
@@ -92,10 +94,10 @@ export async function stopContainer(name: string) {
 export async function startContainer(name: string) {
     try {
         console.log('starting Container ' + name);
-        const listcontainers = await docker.listImages();
+        const listcontainers = await docker.listContainers({ filters: { name: [name] } });
         console.log(listcontainers);
         const container = docker.getContainer(listcontainers[0].Id);
-        await container.start();
+        await container.unpause();
         const query = `UPDATE projects SET container_id = NULL WHERE name = '${name}' RETURNING *`;
     }catch(err){
         console.log('Error Stopping Docker Container',err);

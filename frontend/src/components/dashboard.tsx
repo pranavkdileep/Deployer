@@ -20,9 +20,11 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
-import { useEffect,useState } from 'react'
-import { getSystemanalysis } from '@/actions/getHomeanalysis'
-import { HomeDto } from '@/interfaces/types'
+import { useEffect, useState } from 'react'
+import { getProjects, getSystemanalysis } from '@/actions/getHomeanalysis'
+import { HomeDto, ProjectsDto } from '@/interfaces/types'
+import { restartProject, startProject, stopProject } from '@/actions/project'
+import { Link } from 'react-router-dom'
 
 interface MetricCardProps {
   title: string
@@ -58,32 +60,36 @@ interface ProjectCardProps {
   cpu: number
   memory: number
   onStop?: () => void
+  onStart?: () => void
   onRestart?: () => void
   onDelete?: () => void
 }
 
-function ProjectCard({ 
-  name, 
-  description, 
-  status, 
-  createdAt, 
+function ProjectCard({
+  name,
+  description,
+  status,
+  createdAt,
   lastDeployed,
   cpu,
   memory,
-  onStop, 
-  onRestart, 
-  onDelete 
+  onStop,
+  onRestart,
+  onStart,
+  onDelete
 }: ProjectCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <div>
+          <Link to={`/project/${name}`}>
           <CardTitle className="text-xl flex items-center gap-2">
             {name}
             <Button variant="ghost" size="icon" className="h-5 w-5">
               <ExternalLink className="h-4 w-4" />
             </Button>
           </CardTitle>
+          </Link>
           <CardDescription className="mt-2">{description}</CardDescription>
         </div>
         <DropdownMenu>
@@ -93,7 +99,9 @@ function ProjectCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onStop}>
+            {status === 'running' ? (
+              <>
+              <DropdownMenuItem onClick={onStop}>
               <Power className="mr-2 h-4 w-4" />
               Stop
             </DropdownMenuItem>
@@ -101,6 +109,13 @@ function ProjectCard({
               <RefreshCw className="mr-2 h-4 w-4" />
               Restart
             </DropdownMenuItem>
+            </>
+            ):(<>
+            <DropdownMenuItem onClick={onStart}>
+              <Power className="mr-2 h-4 w-4" />
+              Start
+            </DropdownMenuItem>
+            </>)}
             <DropdownMenuItem onClick={onDelete} className="text-red-600">
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
@@ -110,11 +125,10 @@ function ProjectCard({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4 text-sm">
-          <span className={`flex items-center gap-2 ${
-            status === 'running' ? 'text-green-500' :
-            status === 'stopped' ? 'text-gray-500' :
-            'text-red-500'
-          }`}>
+          <span className={`flex items-center gap-2 ${status === 'running' ? 'text-green-500' :
+              status === 'stopped' ? 'text-gray-500' :
+                'text-red-500'
+            }`}>
             <span className="h-2 w-2 rounded-full bg-current" />
             {status.charAt(0).toUpperCase() + status.slice(1)}
           </span>
@@ -133,6 +147,10 @@ function ProjectCard({
           </div>
           <Progress value={memory} className="h-1" />
         </div>
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Network IO</span>
+          <span>3.35kB / 1.23kB</span>
+        </div>
       </CardContent>
       <CardFooter>
         <Button variant="outline" size="sm" className="w-full">
@@ -148,18 +166,20 @@ export default function Dashboard() {
 
   useEffect(() => {
     setDumymetrics()
+    constructProjectCards()
     const interval = setInterval(() => {
       constructMetricCards()
-    },3000)
+    }, 3000)
 
     return () => {
       clearInterval(interval)
     }
   }, [])
 
-  
+
 
   const [metrics, setMetrics] = useState<MetricCardProps[]>([])
+  const [projects, setProjects] = useState<ProjectCardProps[]>([])
   // const metricsdumy = [
   //   {
   //     title: 'CPU',
@@ -190,46 +210,48 @@ export default function Dashboard() {
   //     className: 'bg-gray-50 dark:bg-gray-950/50',
   //   },
   // ]
-  const projects = [
-    { 
-      name: 'Frontend App', 
-      description: 'Main customer-facing web application',
-      status: 'running' as const,
-      createdAt: '2 months ago',
-      lastDeployed: '2 hours ago',
-      cpu: 45,
-      memory: 62
-    },
-    { 
-      name: 'Backend API', 
-      description: 'RESTful API service for the frontend',
-      status: 'stopped' as const,
-      createdAt: '3 months ago',
-      lastDeployed: '1 day ago',
-      cpu: 0,
-      memory: 12
-    },
-    { 
-      name: 'Database', 
-      description: 'Primary PostgreSQL database instance',
-      status: 'error' as const,
-      createdAt: '3 months ago',
-      lastDeployed: '5 days ago',
-      cpu: 89,
-      memory: 95
-    },
-    { 
-      name: 'Cache Server', 
-      description: 'Redis cache for improved performance',
-      status: 'running' as const,
-      createdAt: '1 month ago',
-      lastDeployed: '12 hours ago',
-      cpu: 23,
-      memory: 45
-    },
-  ]
 
-  function setDumymetrics(){
+
+  // const projects = [
+  //   { 
+  //     name: 'Frontend App', 
+  //     description: 'Main customer-facing web application',
+  //     status: 'running' as const,
+  //     createdAt: '2 months ago',
+  //     lastDeployed: '2 hours ago',
+  //     cpu: 45,
+  //     memory: 62
+  //   },
+  //   { 
+  //     name: 'Backend API', 
+  //     description: 'RESTful API service for the frontend',
+  //     status: 'stopped' as const,
+  //     createdAt: '3 months ago',
+  //     lastDeployed: '1 day ago',
+  //     cpu: 0,
+  //     memory: 12
+  //   },
+  //   { 
+  //     name: 'Database', 
+  //     description: 'Primary PostgreSQL database instance',
+  //     status: 'error' as const,
+  //     createdAt: '3 months ago',
+  //     lastDeployed: '5 days ago',
+  //     cpu: 89,
+  //     memory: 95
+  //   },
+  //   { 
+  //     name: 'Cache Server', 
+  //     description: 'Redis cache for improved performance',
+  //     status: 'running' as const,
+  //     createdAt: '1 month ago',
+  //     lastDeployed: '12 hours ago',
+  //     cpu: 23,
+  //     memory: 45
+  //   },
+  // ]
+
+  function setDumymetrics() {
     const metricsdumy = [
       {
         title: 'CPU',
@@ -262,7 +284,7 @@ export default function Dashboard() {
     ]
     setMetrics(metricsdumy)
   }
-  async function constructMetricCards(){
+  async function constructMetricCards() {
     const data = await getSystemanalysis() as HomeDto
     setMetrics([
       {
@@ -295,6 +317,39 @@ export default function Dashboard() {
       },
     ]);
   }
+  async function constructProjectCards() {
+    const data = await getProjects() as ProjectsDto
+    const projects = data.projects.map((project) => ({
+      name: project.name,
+      description: project.description,
+      status: project.status as 'running' | 'stopped' | 'error',
+      createdAt: formatRelativeTime(project.created_at),
+      lastDeployed: formatRelativeTime(project.updated_at),
+      cpu: parseInt(project.cpu),
+      memory: parseInt(project.ram),
+    }))
+    setProjects(projects)
+  }
+
+  function formatRelativeTime(dateString: string): string {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    const days = Math.floor(diffInSeconds / (24 * 3600));
+    const hours = Math.floor((diffInSeconds % (24 * 3600)) / 3600);
+    const minutes = Math.floor((diffInSeconds % 3600) / 60);
+    let result = "";
+    if (days > 0) {
+      result += `${days} day${days > 1 ? "s" : ""} `;
+    }
+    if (hours > 0 && days === 0) {
+      result += `${hours} hr${hours > 1 ? "s" : ""} `;
+    }
+    if (minutes > 0 && days === 0 && hours === 0) {
+      result += `${minutes} min${minutes > 1 ? "s" : ""} `;
+    }
+    return result.trim() + " ago";
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -305,7 +360,7 @@ export default function Dashboard() {
             <MetricCard key={metric.title} {...metric} />
           ))}
         </div>
-        
+
         <div className="mt-8">
           <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
             <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
@@ -314,7 +369,7 @@ export default function Dashboard() {
               New Project
             </Button>
           </div>
-          
+
           <Tabs defaultValue="expanded" className="mt-4">
             <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
               <TabsList>
@@ -330,7 +385,7 @@ export default function Dashboard() {
                 </Button>
               </div>
             </div>
-            
+
             <TabsContent value="expanded" className="mt-4">
               <ScrollArea className="h-[calc(100vh-20rem)]">
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -338,15 +393,16 @@ export default function Dashboard() {
                     <ProjectCard
                       key={project.name}
                       {...project}
-                      onStop={() => console.log('Stop', project.name)}
-                      onRestart={() => console.log('Restart', project.name)}
+                      onStop={() => stopProject(project.name)}
+                      onStart={() => startProject(project.name)}
+                      onRestart={() => restartProject(project.name)}
                       onDelete={() => console.log('Delete', project.name)}
                     />
                   ))}
                 </div>
               </ScrollArea>
             </TabsContent>
-            
+
             <TabsContent value="collapsed" className="mt-4">
               <ScrollArea className="h-[calc(100vh-20rem)]">
                 <div className="space-y-2">
@@ -354,11 +410,10 @@ export default function Dashboard() {
                     <Card key={project.name} className="p-4">
                       <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                         <div className="flex items-center gap-4">
-                          <span className={`h-2 w-2 rounded-full ${
-                            project.status === 'running' ? 'bg-green-500' :
-                            project.status === 'stopped' ? 'bg-gray-500' :
-                            'bg-red-500'
-                          }`} />
+                          <span className={`h-2 w-2 rounded-full ${project.status === 'running' ? 'bg-green-500' :
+                              project.status === 'stopped' ? 'bg-gray-500' :
+                                'bg-red-500'
+                            }`} />
                           <div>
                             <span className="font-medium">{project.name}</span>
                             <p className="text-sm text-muted-foreground">{project.description}</p>

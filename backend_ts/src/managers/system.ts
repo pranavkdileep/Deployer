@@ -115,6 +115,25 @@ function getDockerStats(name: string): Promise<any[]> {
     });
 }
 
+
+
+function getHostPorts(inspect: any): string[] {
+    const portBindings = inspect.HostConfig.PortBindings;
+    const hostPorts: string[] = [];
+
+    for (const port in portBindings) {
+        if (portBindings[port]) {
+            for (const binding of portBindings[port]) {
+                if (binding.HostPort) {
+                    hostPorts.push(binding.HostPort);
+                }
+            }
+        }
+    }
+
+    return hostPorts;
+}
+
 export const getProjects = async (): Promise<ProjectsDto> => {
     console.log('Getting Projects');
     const query = `SELECT * FROM projects`;
@@ -133,7 +152,7 @@ export const getProjects = async (): Promise<ProjectsDto> => {
             const status = inspect ? inspect.State.Status : 'Stopped';
             const updated_at = inspect ? inspect.Created : '';
             const open_domains = project.open_domains;
-            const open_ports = inspect ? Object.keys(inspect.Config.ExposedPorts) : [];
+            const open_ports = inspect ? getHostPorts(inspect) : [];
             const stats = status === 'running' ? await getDockerStats(name) : null;
             const cpu = stats? stats[0].CPUPerc : '0';
             const ram = stats? stats[0].MemUsage : '0';

@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Login from './pages/Login'
 import { Protectedroutes } from './utils/Protectedrouts'
+import Project from './pages/Project'
 
 
 createRoot(document.getElementById('root')!).render(
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/login" element={<Login />} />
       <Route element={<Protectedroutes />}>
       <Route path="/" element={<Home />} />
+      <Route path="/project/:name" element={<Project />} />
       </Route>
     </Routes>
     </BrowserRouter>
