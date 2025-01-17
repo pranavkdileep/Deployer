@@ -8,8 +8,8 @@ const docker = new Dockerode();
 
 
 export async function buildImage(buildconfig: Build) {
-    const { name, dockerfile, port } = buildconfig;
-    const path = `../projects/${name}/`;
+    const { name, dockerfile, port,dir } = buildconfig;
+    const path = `../projects/${name}/${dir ? dir : ''}`;
     //build the image in the path
     const buildouttxt = fs.openSync(`${path}buildout.txt`, 'w');
     const dockerfilePath = path + dockerfile;

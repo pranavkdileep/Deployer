@@ -1,7 +1,8 @@
 import { Response,Request } from "express";
 import { connection } from "../lib/db";
 import { buildImage, getContainerSates, startContainer, stopContainer,restartContainer } from "../managers/docker";
-import { Build } from "../dtos/build";
+import { Build, SetupSource } from "../dtos/build";
+import { setupSourceFromGit, setupSourceFromLocal } from "../managers/source";
 
 export const getProjectslist = async (req:Request,res:Response) => {
     const query = `SELECT * FROM projects`;
@@ -80,6 +81,22 @@ export const restartContainerHandler = async (req:Request<{},{},{name:string}>,r
             restartContainer(name);
         }catch(err){
             res.status(500).json({message:'Error Restarting Container'});
+        }
+    }
+}
+
+export const setupProjectSourceHandeler = async (req:Request<{},{},SetupSource>,res:Response) => {
+    const source = req.body;
+    if(!source.name || !source.sourceType){
+        res.status(400).json({message:'Invalid Request!'});
+    }
+    else{
+        res.status(200).json({message:'Setting up Source'});
+        if(source.sourceType === 'git'){
+            setupSourceFromGit(source);
+        }
+        else if(source.sourceType === 'local'){
+            setupSourceFromLocal(source);
         }
     }
 }

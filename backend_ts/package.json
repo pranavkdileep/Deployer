@@ -16,13 +16,16 @@
     "express": "^4.21.2",
     "express-jwt": "^8.5.1",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "simple-git": "^3.27.0",
+    "unzipper": "^0.12.3"
   },
   "devDependencies": {
     "@types/dockerode": "^3.3.34",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/pg": "^8.11.10",
+    "@types/unzipper": "^0.10.10",
     "dotenv": "^16.4.7",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
