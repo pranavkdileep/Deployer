@@ -1,4 +1,4 @@
-import {useParams} from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -7,11 +7,51 @@ import { Input } from "@/components/ui/input"
 import { Terminal, RefreshCw, StopCircle } from 'lucide-react'
 import { useState } from 'react'
 import { Label } from "@/components/ui/label"
+import { deployProject, saveDeploymentSettings, uploadZip } from '@/actions/project'
+import { DeploymentMethod } from '@/interfaces/types'
 
 export default function DeploymentSettings() {
-  const {name} = useParams<{name: string}>()
-  const [activeTab, setActiveTab] = useState("github")
+  const { name } = useParams<{ name: string }>();
+  const [activeTab, setActiveTab] = useState("github");
+  const [sourceDir, setSourceDir] = useState('');
+  const [port, setPort] = useState(0);
+  const [dockerFile, setDockerFile] = useState('');
+  const [sourcesetupbutton, setSourceSetupButton] = useState(false);
   const [deployMethod, setDeployMethod] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [isProgress, setIsProgress] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const handleFileUpload = async () => {
+    console.log("Uploading file");
+    const formData = new FormData();
+    formData.append('zipfile', file!);
+    formData.append('name', name!);
+    setIsProgress(true);
+    const success = uploadZip(formData,(progress) =>{
+      setProgress(progress);
+    });
+    console.log(success);
+  }
+
+  const handlesavesettings = () => {
+    console.log("Saving settings");
+    const condfig : DeploymentMethod = {
+      name: name!,
+      sourcedir: sourceDir,
+      buildtype: deployMethod as 'docker' | 'nix',
+      dockerFile: dockerFile,
+      port: port
+    }
+    console.log(condfig);
+    saveDeploymentSettings(condfig);
+  }
+
+  const handleDeploy = () => {
+    deployProject(name!);
+  }
+
+
   return (
     <div className="min-h-screen bg-background p-6">
       <h1 className="text-2xl font-semibold mb-4">Deployment Settings for {name}</h1>
@@ -38,7 +78,7 @@ export default function DeploymentSettings() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex gap-2">
-            <Button className="active:scale-95 transition-transform hover:opacity-90">Deploy</Button>
+            <Button className="active:scale-95 transition-transform hover:opacity-90" onClick={handleDeploy}>Deploy</Button>
             <Button variant="secondary" className="active:scale-95 transition-transform hover:opacity-90">
               Autodeploy
             </Button>
@@ -61,7 +101,7 @@ export default function DeploymentSettings() {
             <p className="text-sm text-muted-foreground mb-4">
               Select the source of your code
             </p>
-            
+
             <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
               <TabsList>
                 <TabsTrigger value="github">Github</TabsTrigger>
@@ -79,21 +119,61 @@ export default function DeploymentSettings() {
                   name="file-upload"
                   type="file"
                   className="mt-1 block w-full"
-                  accept=".yml,.yaml"
+                  accept=".zip"
+                  onChange={
+                    (e) => {
+                      setFile(e.target.files![0])
+                      console.log(e.target.files![0].name)
+                      setSourceSetupButton(true)
+                    }
+                  }
                 />
+                {isProgress && (
+                  <div className="mt-2">
+                  <p className="text-sm text-muted-foreground">
+                    {progress}%
+                  </p>
+                  </div>
+                )}
               </div>
             )}
 
             {(activeTab === "github") && (
               <div>
                 <label htmlFor="repository" className="text-sm font-medium mb-2 block">Repository</label>
-                <Input 
+                <Input
                   id="repository"
                   placeholder="https://github.com/pranavkd/demo"
                   className="w-full"
                 />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Branch</label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select branch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="main">main</SelectItem>
+                        <SelectItem value="develop">develop</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                </div>
               </div>
+
             )}
+
+            <div className="flex justify-items-start mt-6 mb-6">
+                <Button 
+                className={`${sourcesetupbutton ? 'text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline' : 'bg-gray-300 hover:bg-gray-300'} `}
+                disabled={!sourcesetupbutton}
+                onClick={handleFileUpload}
+                >
+                Setup Source
+                </Button>
+            </div>
 
             <div className="space-y-4">
               <div>
@@ -112,7 +192,11 @@ export default function DeploymentSettings() {
                 {deployMethod === 'docker' && (
                   <div className="mt-4">
                     <label htmlFor="dockerFile" className="text-sm font-medium mb-2 block">Docker File Name</label>
-                    <Input id="dockerFile" placeholder="Enter Docker file name" />
+                    <Input id="dockerFile" placeholder="Enter Docker file name" onChange={(e)=>{setDockerFile(e.target.value)}} />
+                    <label htmlFor="port" className="text-sm font-medium mb-2 block">Port</label>
+                    <Input id="port" placeholder="Enter port" onChange={(e)=>{setPort(parseInt(e.target.value))}} />
+                    <label htmlFor="sourceDir" className="text-sm font-medium mb-2 block">Source Directory</label>
+                    <Input id="sourceDir" placeholder="Enter source directory" onChange={(e)=>{setSourceDir(e.target.value)}} />
                   </div>
                 )}
                 {deployMethod === 'nix' && (
@@ -137,31 +221,15 @@ export default function DeploymentSettings() {
                 )}
               </div>
 
-              {(activeTab === "github" || activeTab === "git") && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Branch</label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select branch" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="main">main</SelectItem>
-                        <SelectItem value="develop">develop</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                </div>
-              )}
-              
+
+
             </div>
           </div>
           <div className="flex justify-items-start mt-6">
-          <Button className="active:scale-95 transition-transform hover:opacity-90">
-            Save Settings
-          </Button>
-        </div>
+            <Button className="active:scale-95 transition-transform hover:opacity-90" onClick={handlesavesettings}>
+              Save Settings
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

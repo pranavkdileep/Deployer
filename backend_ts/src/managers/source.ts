@@ -1,11 +1,11 @@
 import fs from 'fs';
-import { SetupSource } from '../dtos/build';
+import { DeploymentMethod, SetupSource } from '../dtos/build';
 import git, { GitError } from 'simple-git';
 import * as unzip from 'unzipper';
+import { connection } from '../lib/db';
 
 const projectFolder = '../projects';
 const projects = fs.readdirSync(projectFolder);
-console.log(projects);
 
 export async function setupSourceFromGit(source: SetupSource){
     if(source.sourceType === 'git'){
@@ -18,7 +18,7 @@ export async function setupSourceFromGit(source: SetupSource){
         }
         console.log('Cloning Project');
         fs.mkdirSync(projectPath);
-        await git().clone(gitUrl!,projectPath,['-b',branch!],(err:GitError | null,data:string)=>{
+        await git().clone(gitUrl!,projectPath,['-b',branch!],async (err:GitError | null,data:string)=>{
             if(err){
                 console.log('Error while cloning project');
                 console.log(err.message);
@@ -26,6 +26,7 @@ export async function setupSourceFromGit(source: SetupSource){
             }
             console.log('Project Cloned');
             console.log(data);
+            console.log((await connection.query(`UPDATE projects SET sourceStatus = 'TRUE' WHERE name = '${source.name}' RETURNING *`)).rows);
         });
         
     }
@@ -45,11 +46,18 @@ export async function setupSourceFromLocal(source: SetupSource){
         fs.mkdirSync(projectPath);
         fs.createReadStream(tempZipPath!).pipe(unzip.Extract({path:projectPath}));
         console.log('Project Extracted');
+        console.log((await connection.query(`UPDATE projects SET sourceStatus = 'TRUE' WHERE name = '${source.name}' RETURNING *`)).rows);
+
     }
 }
 
-setupSourceFromLocal({
-    name:'test',
-    sourceType:'local',
-    tempZipPath:'../projects/sample-flask-app-main.zip'
-})
+export async function setDeploymentmethod(config: DeploymentMethod){
+    const {name,sourcedir,buildtype} = config;
+    if(buildtype === 'docker'){
+        const {dockerFile,port} = config;
+        const query = `UPDATE projects SET deployType = 'docker', dockerfile = '${dockerFile}', port = ${port},sourcePath = '${sourcedir}' WHERE name = '${name}' RETURNING *`;
+        console.log(query);
+        const  result = await connection.query(query);
+        console.log(result.rows);
+    }
+}

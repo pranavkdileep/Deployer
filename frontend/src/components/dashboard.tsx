@@ -11,6 +11,9 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,8 +26,10 @@ import { Progress } from '@/components/ui/progress'
 import { useEffect, useState } from 'react'
 import { getProjects, getSystemanalysis } from '@/actions/getHomeanalysis'
 import { HomeDto, ProjectsDto } from '@/interfaces/types'
-import { restartProject, startProject, stopProject } from '@/actions/project'
+import { createProject, restartProject, startProject, stopProject } from '@/actions/project'
 import { Link } from 'react-router-dom'
+import { Textarea } from './ui/textarea'
+import { Input } from './ui/input'
 
 interface MetricCardProps {
   title: string
@@ -166,6 +171,8 @@ function ProjectCard({
 
 export default function Dashboard() {
 
+
+
   useEffect(() => {
     setDumymetrics()
     constructProjectCards()
@@ -182,6 +189,9 @@ export default function Dashboard() {
 
   const [metrics, setMetrics] = useState<MetricCardProps[]>([])
   const [projects, setProjects] = useState<ProjectCardProps[]>([])
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [projectName, setProjectName] = useState('')
+  const [projectDescription, setProjectDescription] = useState('')
   // const metricsdumy = [
   //   {
   //     title: 'CPU',
@@ -332,6 +342,12 @@ export default function Dashboard() {
     }))
     setProjects(projects)
   }
+  async function handleCreateProject(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    console.log(projectName, projectDescription)
+    createProject(projectName, projectDescription)
+    setIsDialogOpen(false)
+  }
 
   function formatRelativeTime(dateString: string): string {
     const date = new Date(dateString);
@@ -366,10 +382,54 @@ export default function Dashboard() {
         <div className="mt-8">
           <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
             <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
-            <Button>
-              <Play className="mr-2 h-4 w-4" />
-              New Project
-            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Play className="mr-2 h-4 w-4" />
+                  New Project
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Project</DialogTitle>
+                  <DialogDescription>
+                    Enter the details for your new project.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleCreateProject}>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="project-name" className="text-right">
+                        Name
+                      </Label>
+                      <Input
+                        id="project-name"
+                        value={projectName}
+                        onChange={(e) => setProjectName(e.target.value)}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="project-description" className="text-right">
+                        Description
+                      </Label>
+                      <Textarea
+                        id="project-description"
+                        value={projectDescription}
+                        onChange={(e) => setProjectDescription(e.target.value)}
+                        className="col-span-3"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit">Create</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <Tabs defaultValue="expanded" className="mt-4">

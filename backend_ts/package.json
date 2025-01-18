@@ -12,8 +12,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/express-fileupload": "^1.5.1",
     "dockerode": "^4.0.3",
     "express": "^4.21.2",
+    "express-fileupload": "^1.5.1",
     "express-jwt": "^8.5.1",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.1",

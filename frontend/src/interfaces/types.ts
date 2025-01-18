@@ -37,3 +37,11 @@ export interface ProjectsDto {
         open_domains:string;
     }[]
 }
+
+export interface DeploymentMethod {
+    name: string;
+    sourcedir: string;
+    buildtype: 'docker' | 'nix';
+    dockerFile?: string;
+    port?: number;
+}

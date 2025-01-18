@@ -4,6 +4,7 @@ import projectRoute from './routes/projects'
 import systemRouts from './routes/system'
 import dotenv from 'dotenv'
 import { jwtMiddleware } from './utils/middleware'
+import fileUpload from 'express-fileupload'
 dotenv.config()
 
 const app = express()
@@ -11,6 +12,7 @@ const port = 3000
 
 app.use('/', express.static('public'));
 app.use(express.json());
+app.use(fileUpload());
 app.use('/api/auth', loginRoute);
 app.use('/api/projects', projectRoute);
 app.use('/api/system',jwtMiddleware,systemRouts);
