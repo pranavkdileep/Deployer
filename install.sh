@@ -45,7 +45,7 @@ installNvmNodeCentos() {
 
 cloneRepo() {
     git clone https://github.com/pranavkdileep/Deployer
-    cd Deployer/backend-ts
+    cd Deployer/backend_ts/
     npm install
     cp env_example .env
     npm run build
