@@ -11,7 +11,7 @@ User=root
 WorkingDirectory=/root/Deployer/backend_ts
 
 # Command to start the app
-ExecStart=/root/.nvm/versions/node/v23.6.0/bin/npm run start
+ExecStart=/root/.nvm/versions/node/v23.6.0/bin/node dist/index.js
 
 # Environment variables
 Environment=NODE_ENV=production
