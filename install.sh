@@ -21,7 +21,10 @@ installDockerDebian() {
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |
         tee /etc/apt/sources.list.d/docker.list >/dev/null
     apt-get update
-    apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    apt-get -y \
+    -o Dpkg::Options::="--force-confdef" \
+    -o Dpkg::Options::="--force-confold" \
+    install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 }
 installDockerCentos() {
     yum install -y yum-utils device-mapper-persistent-data lvm2 curl git
