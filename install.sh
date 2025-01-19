@@ -65,6 +65,7 @@ if [ -f /etc/debian_version ]; then
     installDockerDebian
     installNvmNodeDebian
     cloneRepo
+    startNodeServerService
 elif [ -f /etc/redhat-release ]; then
     echo "Centos based distro"
     installDockerCentos
