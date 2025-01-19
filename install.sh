@@ -59,12 +59,17 @@ startNodeServerService() {
     echo "Node server started"
 }
 
+setupPostgres(){
+    
+}
+
 # check the distro ubuntu debian based or centos based like redhat fedora
 if [ -f /etc/debian_version ]; then
     echo "Debian based distro"
     installDockerDebian
     installNvmNodeDebian
     cloneRepo
+
     startNodeServerService
 elif [ -f /etc/redhat-release ]; then
     echo "Centos based distro"

@@ -1,4 +1,4 @@
-EMAIL=test
+EMAIL=test@gmail.com
 PASSWORD=pass
 JWT_SECRET=secret123
 PGSQL_USER=postgres.xpxzytszbkhbpmlttmog
