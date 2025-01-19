@@ -87,6 +87,33 @@ setupPostgres(){
     read email
     echo "Enter Admin Password:"
     read password
+    echo "Enter JWT Securty Key:"
+    read jwt
+    cat <<EOL > deployer.service
+    [Service]
+    Environment=NODE_ENV=production
+    Environment=EMAIL=$email
+    Environment=PASSWORD=$password
+    Environment=JWT_SECRET=$jwt
+    Environment=PGSQL_USER=docker_user
+    Environment=PGSQL_PASSWORD=postgres
+    Environment=PGSQL_HOST=localhost
+    Environment=PGSQL_PORT=5432
+    Environment=PGSQL_DATABASE=deployer
+    Environment=PGSQL_POOL_MODE=transaction
+
+    Restart=always
+    RestartSec=10
+
+    StandardOutput=syslog
+    StandardError=syslog
+    SyslogIdentifier=nodejs-app
+
+    [Install]
+    WantedBy=multi-user.target
+
+EOL
+
 
 }
 
