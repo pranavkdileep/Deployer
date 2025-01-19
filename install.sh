@@ -6,7 +6,6 @@ if [ $(id -u) != 0 ]; then
 fi
 
 installDockerDebian() {
-    apt install curl
     #uninstall unofficial docker
     for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do apt-get -y remove $pkg; done
     #install docker
