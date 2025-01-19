@@ -90,7 +90,23 @@ setupPostgres(){
     echo "Enter JWT Securty Key:"
     read jwt
     cat <<EOL > deployer.service
+    [Unit]
+    Description=Node.js Application
+    Documentation=https://example.com/docs
+    After=network.target
+
     [Service]
+    # User is root
+    User=root
+
+    # Path to the application directory
+    WorkingDirectory=/root/Deployer/backend_ts
+
+    # Command to start the app
+    ExecStart=/root/.nvm/versions/node/v23.6.0/bin/node dist/index.js
+
+    # Environment variables
+
     Environment=NODE_ENV=production
     Environment=EMAIL=$email
     Environment=PASSWORD=$password
