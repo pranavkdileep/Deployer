@@ -73,6 +73,9 @@ setupPostgres(){
     docker run --name pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=docker_user -d -p 5432:5432 -v pgdata:/var/lib/postgresql/data postgres:latest
     echo "Postgres setup"
     # create database
+    docker start pg
+    # wait 30 seconds for postgres to start
+    sleep 30
     docker exec -it pg psql -U docker_user -c "CREATE DATABASE deployer;"
     echo "Database created"
     #create table projects
