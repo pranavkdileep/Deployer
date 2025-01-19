@@ -1,1 +1,38 @@
-[UNIT]
+[Unit]
+Description=Node.js Application
+Documentation=https://example.com/docs
+After=network.target
+
+[Service]
+# User is root
+User=root
+
+# Path to the application directory
+WorkingDirectory=/root/Deployer/backend_ts
+
+# Command to start the app
+ExecStart=/root/.nvm/versions/node/v23.6.0/bin/npm run start
+
+# Environment variables
+Environment=NODE_ENV=production
+Environment=EMAIL=test
+Environment=PASSWORD=pass
+Environment=JWT_SECRET=secret123
+Environment=PGSQL_USER=postgres.xpxzytszbkhbpmlttmog
+Environment=PGSQL_PASSWORD="Pranavkd44#"
+Environment=PGSQL_HOST=aws-0-ap-southeast-1.pooler.supabase.com
+Environment=PGSQL_PORT=6543
+Environment=PGSQL_DATABASE=postgres
+Environment=PGSQL_POOL_MODE=transaction
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Output log redirection
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=nodejs-app
+
+[Install]
+WantedBy=multi-user.target
