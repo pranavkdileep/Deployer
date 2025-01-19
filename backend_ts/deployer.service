@@ -15,7 +15,7 @@ ExecStart=/root/.nvm/versions/node/v23.6.0/bin/node dist/index.js
 
 # Environment variables
 Environment=NODE_ENV=production
-Environment=EMAIL=test
+Environment=EMAIL=test@gmail.com
 Environment=PASSWORD=pass
 Environment=JWT_SECRET=secret123
 Environment=PGSQL_USER=postgres.xpxzytszbkhbpmlttmog
