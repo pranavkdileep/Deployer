@@ -3,5 +3,10 @@ simple hosing controll panel
 
 # install Command
 ```bash
-rm install.sh && wget https://raw.githubusercontent.com/pranavkdileep/Deployer/refs/heads/main/install.sh && chmod +x install.sh && bash install.sh
+curl -o- https://raw.githubusercontent.com/pranavkdileep/Deployer/refs/heads/main/install.sh | bash
+```
+
+To View Log
+```bash
+journalctl -u deployer -f
 ```
