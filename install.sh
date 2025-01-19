@@ -31,7 +31,9 @@ installNvmNodeDebian() {
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
     export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    nvm install node
+    nvm install 23.6.0
+    # setup npm and node in /root/.nvm/versions/node/v23.6.0/bin/node and /root/.nvm/versions/node/v23.6.0/bin/npm
+    
     echo "Node.js installed"
 }
 installNvmNodeCentos() {
@@ -62,6 +64,7 @@ if [ -f /etc/debian_version ]; then
     echo "Debian based distro"
     installDockerDebian
     installNvmNodeDebian
+    cloneRepo
 elif [ -f /etc/redhat-release ]; then
     echo "Centos based distro"
     installDockerCentos
