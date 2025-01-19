@@ -64,6 +64,31 @@ startNodeServerService() {
     echo "Node server started"
 }
 
+setupPostgres(){
+    #pull image
+    docker pull postgres:latest
+    #create volume
+    docker volume create pgdata
+    #run container
+    docker run --name pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=docker_user -d -p 5432:5432 -v pgdata:/var/lib/postgresql/data postgres:latest
+    echo "Postgres setup"
+    # create database
+    docker exec -it pg psql -U docker_user -c "CREATE DATABASE deployer;"
+    echo "Database created"
+    #create table projects
+    #import schema
+    docker cp projects_rows.sql pg:/projects_rows.sql
+    docker exec -it pg psql -U docker_user -d deployer -f projects_rows.sql
+    #print rows
+    docker exec -it pg psql -U docker_user -d deployer -c "SELECT * FROM projects;"
+    echo "Schema imported"
+    echo "Enter Admin Emain:"
+    read email
+    echo "Enter Admin Password:"
+    read password
+
+}
+
 
 
 # check the distro ubuntu debian based or centos based like redhat fedora
@@ -72,7 +97,7 @@ if [ -f /etc/debian_version ]; then
     installDockerDebian
     installNvmNodeDebian
     cloneRepo
-
+    setupPostgres
     startNodeServerService
 elif [ -f /etc/redhat-release ]; then
     echo "Centos based distro"
