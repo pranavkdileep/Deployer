@@ -82,8 +82,6 @@ setupPostgres(){
     #import schema
     docker cp projects_rows.sql pg:/projects_rows.sql
     docker exec -it pg psql -U docker_user -d deployer -f projects_rows.sql
-    #print rows
-    docker exec -it pg psql -U docker_user -d deployer -c "SELECT * FROM projects;"
     echo "Schema imported"
     echo "Enter Admin Emain:"
     read email
