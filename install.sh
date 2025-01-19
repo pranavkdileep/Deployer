@@ -59,9 +59,7 @@ startNodeServerService() {
     echo "Node server started"
 }
 
-setupPostgres(){
-    
-}
+
 
 # check the distro ubuntu debian based or centos based like redhat fedora
 if [ -f /etc/debian_version ]; then
