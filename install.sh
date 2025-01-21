@@ -77,12 +77,12 @@ setupPostgres(){
     # wait 30 seconds for postgres to start
     sleep 8
     #docker exec -it pg psql -U docker_user -c "CREATE DATABASE deployer;"
-    docker exec pg psql -U docker_user -c "CREATE DATABASE deployer;"
+    docker exec -it pg psql -U docker_user -c "CREATE DATABASE deployer;"
     echo "Database created"
     #create table projects
     #import schema
     docker cp projects_rows.sql pg:/projects_rows.sql
-    docker exec pg psql -U docker_user -d deployer -f projects_rows.sql
+    docker exec -it pg psql -U docker_user -d deployer -f projects_rows.sql
     echo "Schema imported"
     echo "Enter Admin Emain:"
     read email
