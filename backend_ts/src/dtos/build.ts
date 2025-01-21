@@ -15,7 +15,7 @@ export interface SetupSource {
 
 export interface DeploymentMethod {
     name: string;
-    sourcedir: string;
+    sourcedir?: string;
     buildtype: 'docker' | 'nix';
     dockerFile?: string;
     port?: number;

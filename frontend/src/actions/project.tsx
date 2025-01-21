@@ -206,3 +206,30 @@ export const createProject = async (name: string, description: string) => {
         }
     }
 }
+
+export const setupgit = async (name: string, giturl: string, branch: string) => {
+    let data = JSON.stringify({
+        "name": name,
+        "sourceType": "git",
+        "gitUrl": giturl,
+        "branch": branch
+      });
+      
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: '/api/projects/setupProjectSource',
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${Cookie.get('token')}`
+        },
+        data : data
+      };
+      try{
+        const response = await axios.request(config);
+        console.log(response.data);
+        return response.data;
+      }catch(e){
+          console.log("Error in setupgit", e);  
+      }
+}

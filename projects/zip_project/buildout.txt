@@ -1,0 +1,76 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 211B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.9-slim
+#2 ...
+
+#3 [auth] library/python:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.9-slim
+#2 DONE 1.5s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [1/4] FROM docker.io/library/python:3.9-slim@sha256:bb8009c87ab69e751a1dd2c6c7f8abaae3d9fce8e072802d4a23c95594d16d84
+#5 resolve docker.io/library/python:3.9-slim@sha256:bb8009c87ab69e751a1dd2c6c7f8abaae3d9fce8e072802d4a23c95594d16d84 done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 36.53kB 0.0s done
+#6 DONE 0.0s
+
+#7 [2/4] WORKDIR /app
+#7 CACHED
+
+#8 [3/4] COPY . /app
+#8 DONE 0.1s
+
+#9 [4/4] RUN pip install -r requirements.txt
+#9 2.658 Collecting gunicorn
+#9 2.908   Downloading gunicorn-23.0.0-py3-none-any.whl (85 kB)
+#9 2.989      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 85.0/85.0 kB 1.0 MB/s eta 0:00:00
+#9 3.106 Collecting flask
+#9 3.169   Downloading flask-3.1.0-py3-none-any.whl (102 kB)
+#9 3.196      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.0/103.0 kB 3.9 MB/s eta 0:00:00
+#9 3.307 Collecting packaging
+#9 3.367   Downloading packaging-24.2-py3-none-any.whl (65 kB)
+#9 3.380      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 65.5/65.5 kB 5.6 MB/s eta 0:00:00
+#9 3.558 Collecting importlib-metadata>=3.6
+#9 3.617   Downloading importlib_metadata-8.6.1-py3-none-any.whl (26 kB)
+#9 3.708 Collecting Jinja2>=3.1.2
+#9 3.767   Downloading jinja2-3.1.5-py3-none-any.whl (134 kB)
+#9 3.789      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.6/134.6 kB 6.3 MB/s eta 0:00:00
+#9 3.865 Collecting itsdangerous>=2.2
+#9 3.923   Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+#9 4.026 Collecting click>=8.1.3
+#9 4.091   Downloading click-8.1.8-py3-none-any.whl (98 kB)
+#9 4.105      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 98.2/98.2 kB 7.5 MB/s eta 0:00:00
+#9 4.179 Collecting blinker>=1.9
+#9 4.241   Downloading blinker-1.9.0-py3-none-any.whl (8.5 kB)
+#9 4.355 Collecting Werkzeug>=3.1
+#9 4.415   Downloading werkzeug-3.1.3-py3-none-any.whl (224 kB)
+#9 4.444      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 224.5/224.5 kB 7.9 MB/s eta 0:00:00
+#9 4.568 Collecting zipp>=3.20
+#9 4.626   Downloading zipp-3.21.0-py3-none-any.whl (9.6 kB)
+#9 4.878 Collecting MarkupSafe>=2.0
+#9 4.937   Downloading MarkupSafe-3.0.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (20 kB)
+#9 5.077 Installing collected packages: zipp, packaging, MarkupSafe, itsdangerous, click, blinker, Werkzeug, Jinja2, importlib-metadata, gunicorn, flask
+#9 5.571 Successfully installed Jinja2-3.1.5 MarkupSafe-3.0.2 Werkzeug-3.1.3 blinker-1.9.0 click-8.1.8 flask-3.1.0 gunicorn-23.0.0 importlib-metadata-8.6.1 itsdangerous-2.2.0 packaging-24.2 zipp-3.21.0
+#9 5.571 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#9 5.891 
+#9 5.891 [notice] A new release of pip is available: 23.0.1 -> 24.3.1
+#9 5.891 [notice] To update, run: pip install --upgrade pip
+#9 DONE 6.2s
+
+#10 exporting to image
+#10 exporting layers
+#10 exporting layers 1.0s done
+#10 writing image sha256:c1d4e6fb88e0bf7aba9c57f615a250a173e0508fd7dc020c1ef53d112d45aa6e done
+#10 naming to docker.io/library/zip_project done
+#10 DONE 1.0s

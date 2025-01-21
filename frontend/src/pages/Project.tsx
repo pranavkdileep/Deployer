@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Terminal, RefreshCw, StopCircle } from 'lucide-react'
 import { useState } from 'react'
 import { Label } from "@/components/ui/label"
-import { deployProject, saveDeploymentSettings, uploadZip } from '@/actions/project'
+import { deployProject, saveDeploymentSettings, setupgit, uploadZip } from '@/actions/project'
 import { DeploymentMethod } from '@/interfaces/types'
 
 export default function DeploymentSettings() {
@@ -34,6 +34,10 @@ export default function DeploymentSettings() {
       setProgress(progress);
     });
     console.log(success);
+  }
+  const handleGithubSetup = async () =>{
+    console.log(githubRepo, githubBranch);
+    setupgit(name!, githubRepo, githubBranch);
   }
 
   const handlesavesettings = () => {
@@ -152,13 +156,16 @@ export default function DeploymentSettings() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-2 block">Branch</label>
-                    <Select>
+                    <Select onValueChange={(value) => {
+                      setGithubBranch(value)
+                      setSourceSetupButton(true)
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select branch" />
                       </SelectTrigger>
                         <SelectContent>
-                        <SelectItem value="main" onClick={() => setGithubBranch('main')}>main</SelectItem>
-                        <SelectItem value="develop" onClick={() => setGithubBranch('develop')}>develop</SelectItem>
+                        <SelectItem value="main">main</SelectItem>
+                        <SelectItem value="develop">develop</SelectItem>
                         </SelectContent>
                     </Select>
                   </div>
@@ -172,7 +179,7 @@ export default function DeploymentSettings() {
                 <Button 
                 className={`${sourcesetupbutton ? 'text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline' : 'bg-gray-300 hover:bg-gray-300'} `}
                 disabled={!sourcesetupbutton}
-                onClick={handleFileUpload}
+                onClick={activeTab === "raw" ? handleFileUpload : handleGithubSetup}
                 >
                 Setup Source
                 </Button>
