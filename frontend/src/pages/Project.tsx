@@ -21,6 +21,8 @@ export default function DeploymentSettings() {
   const [file, setFile] = useState<File | null>(null);
   const [isProgress, setIsProgress] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [githubRepo, setGithubRepo] = useState('');
+  const [githubBranch, setGithubBranch] = useState('');
 
   const handleFileUpload = async () => {
     console.log("Uploading file");
@@ -145,6 +147,7 @@ export default function DeploymentSettings() {
                   id="repository"
                   placeholder="https://github.com/pranavkd/demo"
                   className="w-full"
+                  onChange={(e) => setGithubRepo(e.target.value)}
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -153,10 +156,10 @@ export default function DeploymentSettings() {
                       <SelectTrigger>
                         <SelectValue placeholder="Select branch" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="main">main</SelectItem>
-                        <SelectItem value="develop">develop</SelectItem>
-                      </SelectContent>
+                        <SelectContent>
+                        <SelectItem value="main" onClick={() => setGithubBranch('main')}>main</SelectItem>
+                        <SelectItem value="develop" onClick={() => setGithubBranch('develop')}>develop</SelectItem>
+                        </SelectContent>
                     </Select>
                   </div>
 
