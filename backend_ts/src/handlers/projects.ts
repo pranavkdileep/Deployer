@@ -3,31 +3,31 @@ import { connection } from "../lib/db";
 import { buildImage, getContainerSates, startContainer, stopContainer, restartContainer } from "../managers/docker";
 import { Build, DeploymentMethod, SetupSource } from "../dtos/build";
 import { setDeploymentmethod, setupSourceFromGit, setupSourceFromLocal } from "../managers/source";
-import fs from 'fs';
 import fileUpload from "express-fileupload";
+import { Responsetemplate } from "../dtos/common";
 
 
 export const getProjectslist = async (req: Request, res: Response) => {
     const query = `SELECT * FROM projects`;
     const rows = await connection.query(query);
     if (rows.rowCount === 0) {
-        res.status(404).json({ message: 'No projects found' });
+        res.status(404).json({ message: 'No projects found', success: false });
     } else {
         res.status(200).json(rows.rows);
     }
 };
 
-export const buildImageHandler = async (req: Request<{}, {}, Build>, res: Response) => {
+export const buildImageHandler = async (req: Request<{}, {}, Build>, res: Response<Responsetemplate>) => {
     const buildconfig = req.body;
     if (!buildconfig.name || !buildconfig.dockerfile) {
-        res.status(400).json({ message: 'Invalid Request' });
+        res.status(400).json({ message: 'Invalid Request',success:false });
     }
     else {
         try {
-            res.status(200).json({ message: 'Docker Build Started' });
+            res.status(200).json({ message: 'Docker Build Started',success:true });
             buildImage(buildconfig);
         } catch (err) {
-            res.status(500).json({ message: 'Error Building Docker Image' });
+            res.status(500).json({ message: 'Error Building Docker Image',success:false });
         }
     }
 }
@@ -35,14 +35,14 @@ export const buildImageHandler = async (req: Request<{}, {}, Build>, res: Respon
 export const stopContainerHandler = async (req: Request<{}, {}, { name: string }>, res: Response) => {
     const { name } = req.body;
     if (!name) {
-        res.status(400).json({ message: 'Invalid Request!' });
+        res.status(400).json({ message: 'Invalid Request!',success:false });
     }
     else {
         try {
-            res.status(200).json({ message: 'Stopping Container Requested' });
+            res.status(200).json({ message: 'Stopping Container Requested',success:true });
             stopContainer(name);
         } catch (err) {
-            res.status(500).json({ message: 'Error Stopping Container' });
+            res.status(500).json({ message: 'Error Stopping Container',success:false });
         }
     }
 }
@@ -188,15 +188,15 @@ export const createProjectHandler = async (req: Request<{}, {}, { name: string, 
     try {
         const { name, description } = req.body;
         if (!name || !description) {
-            res.status(400).json({ message: 'Invalid Request!' });
+            res.status(400).json({ message: 'Invalid Request!', success: false });
         }
         else {
             const query = `INSERT INTO projects (name,description) VALUES ('${name}','${description}') RETURNING *`;
             const result = await connection.query(query);
-            res.status(200).json(result.rows);
+            res.status(200).json({ message: 'Project Created', success: true, data: result.rows[0] });
         }
     } catch (err) {
-        res.status(500).json({ message: 'Error Creating Project' });
+        res.status(500).json({ message: 'Error Creating Project', success: false });
     }
 }
 

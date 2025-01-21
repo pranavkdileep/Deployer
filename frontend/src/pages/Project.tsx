@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { Label } from "@/components/ui/label"
 import { deployProject, saveDeploymentSettings, setupgit, uploadZip } from '@/actions/project'
 import { DeploymentMethod } from '@/interfaces/types'
+import { useToast } from '@/hooks/use-toast'
 
 export default function DeploymentSettings() {
   const { name } = useParams<{ name: string }>();
@@ -23,6 +24,7 @@ export default function DeploymentSettings() {
   const [progress, setProgress] = useState(0);
   const [githubRepo, setGithubRepo] = useState('');
   const [githubBranch, setGithubBranch] = useState('');
+  const { toast } = useToast()
 
   const handleFileUpload = async () => {
     console.log("Uploading file");
@@ -30,14 +32,40 @@ export default function DeploymentSettings() {
     formData.append('zipfile', file!);
     formData.append('name', name!);
     setIsProgress(true);
-    const success = uploadZip(formData,(progress) =>{
+    uploadZip(formData,(progress) =>{
       setProgress(progress);
+    },(success)=>{
+      if(success){
+        toast({
+          title: 'Success',
+          description: 'File uploaded successfully'
+        });
+      }else{
+        toast({
+          title: 'Failed',
+          description: 'File upload failed',
+          variant: 'destructive'
+        }); 
+      } 
     });
-    console.log(success);
+    
   }
   const handleGithubSetup = async () =>{
     console.log(githubRepo, githubBranch);
-    setupgit(name!, githubRepo, githubBranch);
+    setupgit(name!, githubRepo, githubBranch,(success) =>{
+      if(success){
+        toast({
+          title: 'Success',
+          description: 'Github setup successfully'
+        });
+      }else{
+        toast({
+          title: 'Failed',
+          description: 'Github setup failed',
+          variant: 'destructive'
+        }); 
+      }
+    });
   }
 
   const handlesavesettings = () => {
@@ -50,12 +78,38 @@ export default function DeploymentSettings() {
       port: port
     }
     console.log(condfig);
-    saveDeploymentSettings(condfig);
+    saveDeploymentSettings(condfig,(success) =>{
+      if(success){
+        toast({
+          title: 'Success',
+          description: 'Settings saved successfully'
+        });
+      }else{
+        toast({
+          title: 'Failed',
+          description: 'Settings save failed',
+          variant: 'destructive'
+        }); 
+      }
+    });
   }
 
   const handleDeploy = () => {
-    deployProject(name!);
-  }
+    deployProject(name!, (success) => {
+      if(success){
+        toast({
+          title: 'Success',
+          description: 'Project deployed successfully'
+        });
+      }else{
+        toast({
+          title: 'Failed',
+          description: 'Project deployment failed',
+          variant: 'destructive'
+        });
+    }
+  });
+}
 
 
   return (

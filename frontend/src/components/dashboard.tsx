@@ -30,6 +30,7 @@ import { createProject, restartProject, startProject, stopProject } from '@/acti
 import { Link } from 'react-router-dom'
 import { Textarea } from './ui/textarea'
 import { Input } from './ui/input'
+import { useToast } from '@/hooks/use-toast'
 
 interface MetricCardProps {
   title: string
@@ -64,6 +65,7 @@ interface ProjectCardProps {
   lastDeployed: string
   cpu: number
   memory: number
+  openPorts?: string[]
   onStop?: () => void
   onStart?: () => void
   onRestart?: () => void
@@ -78,6 +80,7 @@ function ProjectCard({
   lastDeployed,
   cpu,
   memory,
+  openPorts,
   onStop,
   onRestart,
   onStart,
@@ -88,13 +91,25 @@ function ProjectCard({
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <div>
           <Link to={`/project/${name}`}>
-          <CardTitle className="text-xl flex items-center gap-2">
-            {name}
-            <Button variant="ghost" size="icon" className="h-5 w-5">
-              <ExternalLink className="h-4 w-4" />
-            </Button>
-          </CardTitle>
+            <CardTitle className="text-xl flex items-center gap-2">
+              {name}
+              <Button variant="ghost" size="icon" className="h-5 w-5">
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            </CardTitle>
           </Link>
+          {openPorts && (
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Open Ports</span>
+              <div className="flex items-center gap-2">
+                {openPorts.map((port) => (
+                  <Button key={port} variant="outline">
+                    {port}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
           <CardDescription className="mt-2">{description}</CardDescription>
         </div>
         <DropdownMenu>
@@ -104,23 +119,23 @@ function ProjectCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-          {status === 'running' ? (
+            {status === 'running' ? (
               <>
-              <DropdownMenuItem onClick={onStop}>
-              <Power className="mr-2 h-4 w-4" />
-              Stop
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onRestart}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Restart
-            </DropdownMenuItem>
-            </>
-            ):(status === 'Stopped' ? (<></>):(
+                <DropdownMenuItem onClick={onStop}>
+                  <Power className="mr-2 h-4 w-4" />
+                  Stop
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onRestart}>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Restart
+                </DropdownMenuItem>
+              </>
+            ) : (status === 'Stopped' ? (<></>) : (
               <>
-              <DropdownMenuItem onClick={onStart}>
-                <Power className="mr-2 h-4 w-4" />
-                Start
-              </DropdownMenuItem>
+                <DropdownMenuItem onClick={onStart}>
+                  <Power className="mr-2 h-4 w-4" />
+                  Start
+                </DropdownMenuItem>
               </>
             ))}
             <DropdownMenuItem onClick={onDelete} className="text-red-600">
@@ -133,8 +148,8 @@ function ProjectCard({
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4 text-sm">
           <span className={`flex items-center gap-2 ${status === 'running' ? 'text-green-500' :
-              status === 'Stopped' ? 'text-gray-500' :
-                'text-red-500'
+            status === 'Stopped' ? 'text-gray-500' :
+              'text-red-500'
             }`}>
             <span className="h-2 w-2 rounded-full bg-current" />
             {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -192,6 +207,7 @@ export default function Dashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [projectName, setProjectName] = useState('')
   const [projectDescription, setProjectDescription] = useState('')
+  const { toast } = useToast()
   // const metricsdumy = [
   //   {
   //     title: 'CPU',
@@ -339,13 +355,26 @@ export default function Dashboard() {
       lastDeployed: formatRelativeTime(project.updated_at),
       cpu: parseInt(project.cpu),
       memory: parseInt(project.ram),
+      openPorts: project.open_ports,
     }))
     setProjects(projects)
   }
   async function handleCreateProject(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     console.log(projectName, projectDescription)
-    createProject(projectName, projectDescription)
+    const respose = await createProject(projectName, projectDescription)
+    if (respose.success) {
+      toast({
+        title: "Project Created",
+        description: respose.message,
+      })
+      constructProjectCards()
+    } else {
+      toast({
+        title: "Error",
+        description: respose.message,
+      })
+    }
     setIsDialogOpen(false)
   }
 
@@ -473,8 +502,8 @@ export default function Dashboard() {
                       <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                         <div className="flex items-center gap-4">
                           <span className={`h-2 w-2 rounded-full ${project.status === 'running' ? 'bg-green-500' :
-                              project.status === 'Stopped' ? 'bg-gray-500' :
-                                'bg-red-500'
+                            project.status === 'Stopped' ? 'bg-gray-500' :
+                              'bg-red-500'
                             }`} />
                           <div>
                             <span className="font-medium">{project.name}</span>

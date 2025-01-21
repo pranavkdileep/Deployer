@@ -102,7 +102,7 @@ export const startProject = async (name: string) => {
     }
 }
 
-export const uploadZip = async (formData:FormData , setProgress : (progress : number) => void) => {
+export const uploadZip = async (formData:FormData , setProgress : (progress : number) => void,oncomplite :(success : boolean) => void) => {
     try{
         let config : AxiosRequestConfig = {
             method: 'post',
@@ -118,15 +118,15 @@ export const uploadZip = async (formData:FormData , setProgress : (progress : nu
             }
         };
 
-        const response = await axios.request(config);
-        alert(response.data.message);
-        return {success: true}
+        await axios.request(config);
+        oncomplite(true);
     }catch(e){
-        return {success: false}
+        console.log(e);
+        oncomplite(false);
     }
 }
 
-export const saveDeploymentSettings = async (configm: DeploymentMethod) => {
+export const saveDeploymentSettings = async (configm: DeploymentMethod,oncomplite :(success : boolean) => void) => {
     try {
         let data = JSON.stringify(configm);
 
@@ -142,8 +142,9 @@ export const saveDeploymentSettings = async (configm: DeploymentMethod) => {
         };
         const response = await axios.request(config);
         console.log(response.data);
-        return response.data;
+        oncomplite(true);
     } catch (e) {
+        oncomplite(false);
         console.log(e)
         const error = e as AxiosError;
         if (error.response?.status === 500) {
@@ -152,7 +153,7 @@ export const saveDeploymentSettings = async (configm: DeploymentMethod) => {
     }
 }
 
-export const deployProject = async (name: string) => {
+export const deployProject = async (name: string,oncomplite :(success : boolean) => void) => {
     try {
         let data = JSON.stringify({
             "name": name
@@ -169,8 +170,9 @@ export const deployProject = async (name: string) => {
         };
         const response = await axios.request(config);
         console.log(response.data);
-        return response.data;
+        oncomplite(true);
     } catch (e) {
+        oncomplite(false);  
         console.log(e)
         const error = e as AxiosError;
         if (error.response?.status === 500) {
@@ -204,10 +206,13 @@ export const createProject = async (name: string, description: string) => {
         if (error.response?.status === 500) {
             logout();
         }
+        if(error.response?.data){
+            return error.response.data;
+        }
     }
 }
 
-export const setupgit = async (name: string, giturl: string, branch: string) => {
+export const setupgit = async (name: string, giturl: string, branch: string,onsuccess : (success : boolean) => void) => {
     let data = JSON.stringify({
         "name": name,
         "sourceType": "git",
@@ -228,8 +233,9 @@ export const setupgit = async (name: string, giturl: string, branch: string) => 
       try{
         const response = await axios.request(config);
         console.log(response.data);
-        return response.data;
+        onsuccess(true);
       }catch(e){
           console.log("Error in setupgit", e);  
+        onsuccess(false);
       }
 }

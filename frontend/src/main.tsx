@@ -6,6 +6,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Login from './pages/Login'
 import { Protectedroutes } from './utils/Protectedrouts'
 import Project from './pages/Project'
+import { Toaster } from './components/ui/toaster'
 
 
 createRoot(document.getElementById('root')!).render(
@@ -19,5 +20,6 @@ createRoot(document.getElementById('root')!).render(
       </Route>
     </Routes>
     </BrowserRouter>
-  </StrictMode>,
+    <Toaster />
+  </StrictMode>
 )
