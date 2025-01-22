@@ -200,3 +200,20 @@ export const createProjectHandler = async (req: Request<{}, {}, { name: string, 
     }
 }
 
+export const getDeployments = async (req: Request<{}, {},{name:string}>, res: Response) => {
+    const {name} = req.body;
+    if(!name){
+        res.status(400).json({message:'Invalid Request',success:false});
+    }
+    else{
+        const query = `SELECT * FROM deployments WHERE name = '${name}' ORDER BY created_at DESC LIMIT 20`;
+        const result = await connection.query(query);
+        if(result.rowCount === 0){
+            res.status(404).json({message:'No Deployments Found',success:false});
+        }
+        else{
+            res.status(200).json(result.rows);
+        }
+    }
+}
+

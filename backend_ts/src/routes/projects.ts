@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { jwtMiddleware } from "../utils/middleware";
-import {createProjectHandler, buildImageHandler,restartContainerHandler, getProjectDetails, getProjectslist, startContainerHandler, stopContainerHandler, setupProjectSourceHandeler, uploadZipHandler, setDeploymentmethodHandler, deployHandler } from "../handlers/projects";
+import {createProjectHandler, buildImageHandler,restartContainerHandler, getProjectDetails, getProjectslist, startContainerHandler, stopContainerHandler, setupProjectSourceHandeler, uploadZipHandler, setDeploymentmethodHandler, deployHandler, getDeployments } from "../handlers/projects";
 
 const router = Router();
 
@@ -16,5 +16,6 @@ router.post("/getProjectDetails",jwtMiddleware,getProjectDetails);
 router.post("/setdeploymentmethod",jwtMiddleware,setDeploymentmethodHandler);
 router.post("/deploy",jwtMiddleware,deployHandler);
 router.post("/craeteProject",jwtMiddleware,createProjectHandler);
+router.post("/getDeployments",jwtMiddleware,getDeployments);
 
 export default router;

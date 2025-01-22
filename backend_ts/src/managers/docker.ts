@@ -9,6 +9,9 @@ const docker = new Dockerode();
 
 export async function buildImage(buildconfig: Build) {
     const { name, dockerfile, port,dir } = buildconfig;
+    const createdeployment = await connection.query(`INSERT INTO deployments (name) VALUES ('${name}') RETURNING *`);
+    const deploymentid = createdeployment.rows[0].id;
+    console.log(deploymentid);
     const path = `../projects/${name}/${dir ? dir : ''}`;
     //build the image in the path
     const buildouttxt = fs.openSync(`${path}buildout.txt`, 'w');
@@ -21,6 +24,7 @@ export async function buildImage(buildconfig: Build) {
         const query = `UPDATE projects SET buildstatus = 'success' WHERE name = '${name}' RETURNING *`;
         const resuilt = await connection.query(query);
         console.log(resuilt.rows);
+        await connection.query(`UPDATE deployments SET status = 'success' WHERE id = '${deploymentid}'`);
         runContainer({
             name: name,
             port: port,
@@ -32,7 +36,10 @@ export async function buildImage(buildconfig: Build) {
         const query = `UPDATE projects SET buildstatus = 'failed' WHERE name = '${name}' RETURNING *`;
         const resuilt = await connection.query(query);
         console.log(resuilt.rows);
+        await connection.query(`UPDATE deployments SET status = 'failed' WHERE id = '${deploymentid}'`);
     }
+    const buildouts = fs.readFileSync(`${path}buildout.txt`, 'utf-8');
+    await connection.query('UPDATE deployments SET log = $1 WHERE id = $2', [buildouts, deploymentid]);
 }
 
 export async function runContainer(runconfig: Build) {

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { deployProject, saveDeploymentSettings, setupgit, uploadZip } from '@/actions/project'
 import { DeploymentMethod } from '@/interfaces/types'
 import { useToast } from '@/hooks/use-toast'
+import DeploymentHistory from '@/components/deployment-history'
 
 export default function DeploymentSettings() {
   const { name } = useParams<{ name: string }>();
@@ -25,6 +26,7 @@ export default function DeploymentSettings() {
   const [githubRepo, setGithubRepo] = useState('');
   const [githubBranch, setGithubBranch] = useState('');
   const { toast } = useToast()
+  const [maintab, setMainTab] = useState('general');
 
   const handleFileUpload = async () => {
     console.log("Uploading file");
@@ -111,25 +113,9 @@ export default function DeploymentSettings() {
   });
 }
 
-
-  return (
-    <div className="min-h-screen bg-background p-6">
-      <h1 className="text-2xl font-semibold mb-4">Deployment Settings for {name}</h1>
-      <div className="mb-6">
-        <Tabs defaultValue="general" className="w-full">
-          <TabsList className="w-full justify-start">
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="environment">Environment</TabsTrigger>
-            <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
-            <TabsTrigger value="logs">Logs</TabsTrigger>
-            <TabsTrigger value="deployments">Deployments</TabsTrigger>
-            <TabsTrigger value="domains">Domains</TabsTrigger>
-            <TabsTrigger value="advanced">Advanced</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      <Card>
+function generalTab(){
+  return(
+    <Card>
         <CardHeader>
           <CardTitle>Deploy Settings</CardTitle>
           <p className="text-sm text-muted-foreground">
@@ -296,6 +282,37 @@ export default function DeploymentSettings() {
           </div>
         </CardContent>
       </Card>
+  )
+}
+
+function deploymentTab(){
+  return (
+    <>
+    <DeploymentHistory name={name!}/>
+    </>
+  )
+}
+
+
+  return (
+    <div className="min-h-screen bg-background p-6">
+      <h1 className="text-2xl font-semibold mb-4">Deployment Settings for {name}</h1>
+      <div className="mb-6">
+        <Tabs defaultValue="general" className="w-full" onValueChange={(value)=>{setMainTab(value)}}>
+          <TabsList className="w-full justify-start" >
+            <TabsTrigger value="general">General</TabsTrigger>
+            <TabsTrigger value="environment">Environment</TabsTrigger>
+            <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
+            <TabsTrigger value="logs">Logs</TabsTrigger>
+            <TabsTrigger value="deployments">Deployments</TabsTrigger>
+            <TabsTrigger value="domains">Domains</TabsTrigger>
+            <TabsTrigger value="advanced">Advanced</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+      {maintab === 'general' && generalTab()}
+      {maintab === 'deployments' && deploymentTab()}
+      
     </div>
   )
 }
