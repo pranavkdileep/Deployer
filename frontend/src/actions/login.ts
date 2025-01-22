@@ -14,7 +14,7 @@ export const loginAction = async (email: string, password: string) => {
       const data:logingResponse = response.data;
       if(data.success){
         //document.cookie = `token=${data.token}; expires=3600; path=/; SameSite=None; `;
-        Cookies.set('token', data.token, { expires: 1 });
+        Cookies.set('token', data.token, { expires: 1,secure: true });
         return data.success;
       }
       else{
