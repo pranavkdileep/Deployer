@@ -1,5 +1,6 @@
 import { logingResponse } from "@/interfaces/types";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 export const loginAction = async (email: string, password: string) => {
     const payload = {
@@ -12,7 +13,8 @@ export const loginAction = async (email: string, password: string) => {
       console.log(response.data);
       const data:logingResponse = response.data;
       if(data.success){
-        document.cookie = `token=${data.token}; expires=3600; path=/; SameSite=None; `;
+        //document.cookie = `token=${data.token}; expires=3600; path=/; SameSite=None; `;
+        Cookies.set('token', data.token, { expires: 1 });
         return data.success;
       }
       else{
