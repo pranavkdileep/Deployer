@@ -14,3 +14,10 @@ CREATE TABLE projects (
     deploytype VARCHAR(50),
     sourcepath TEXT
 );
+CREATE TABLE projects (
+    id SERIAL PRIMARY KEY, -- Automatically generates unique IDs
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    name VARCHAR(255) NOT NULL,
+    status VARCHAR(50),
+    log TEXT,
+);
