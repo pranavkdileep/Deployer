@@ -19,5 +19,5 @@ CREATE TABLE projects (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     name VARCHAR(255) NOT NULL,
     status VARCHAR(50),
-    log TEXT,
+    log TEXT
 );
