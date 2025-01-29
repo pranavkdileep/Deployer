@@ -11,6 +11,7 @@ import { deployProject, saveDeploymentSettings, setupgit, uploadZip } from '@/ac
 import { DeploymentMethod } from '@/interfaces/types'
 import { useToast } from '@/hooks/use-toast'
 import DeploymentHistory from '@/components/deployment-history'
+import { AutoScrollingLogView } from '@/components/AutoScrollingLogView'
 
 export default function DeploymentSettings() {
   const { name } = useParams<{ name: string }>();
@@ -312,6 +313,7 @@ function deploymentTab(){
       </div>
       {maintab === 'general' && generalTab()}
       {maintab === 'deployments' && deploymentTab()}
+      {maintab === 'logs' && <AutoScrollingLogView/>}
       
     </div>
   )
