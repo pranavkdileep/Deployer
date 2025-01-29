@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "backend_ts",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: build - backend_ts",
+			"detail": "tsc --build"
+		}
+	]
+}

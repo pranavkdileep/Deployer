@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { jwtMiddleware } from "../utils/middleware";
 import {createProjectHandler, buildImageHandler,restartContainerHandler, getProjectDetails, getProjectslist, startContainerHandler, stopContainerHandler, setupProjectSourceHandeler, uploadZipHandler, setDeploymentmethodHandler, deployHandler, getDeployments } from "../handlers/projects";
+import expressWs from 'express-ws'
 
 const router = Router();
 
