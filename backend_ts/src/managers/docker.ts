@@ -153,7 +153,6 @@ export async function streamLogs(name: string, streamer: (log: string) => void) 
             const buffer : Buffer = Buffer.from(data);
             const log = buffer.subarray(8).toString();
             streamer(log);
-            console.log(log);
         });
         logStream.on('error', (err: Error) => {
             throw err;
