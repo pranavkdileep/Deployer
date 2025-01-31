@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react"
 import { generateLog } from "@/utils/generateLog"
 
-export function useLogGenerator() {
+export function useLogGenerator(name:string) {
   const [logs, setLogs] = useState<string[]>([])
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setLogs((prevLogs) => [...prevLogs, generateLog()])
-    }, 1000)
-
-    return () => clearInterval(intervalId)
+    generateLog(name,(log:string)=>{
+      setLogs((prevLogs) => [...prevLogs, log])
+    })
   }, [])
 
   return logs

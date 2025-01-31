@@ -3,8 +3,8 @@ import { useLogGenerator } from "../hooks/useLogGenerator"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 
-export function AutoScrollingLogView() {
-  const logs = useLogGenerator()
+export function AutoScrollingLogView({name}:{name:string}) {
+  const logs = useLogGenerator(name)
   const logContainerRef = useRef<HTMLDivElement>(null)
   const [autoScroll, setAutoScroll] = useState(true)
 

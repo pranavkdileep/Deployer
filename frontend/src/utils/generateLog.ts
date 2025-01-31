@@ -1,21 +1,16 @@
-const logTypes = ["INFO", "WARNING", "ERROR", "DEBUG"]
-const logMessages = [
-  "User logged in",
-  "Database connection established",
-  "API request failed",
-  "Cache cleared",
-  "File upload completed",
-  "Payment processed",
-  "Email sent",
-  "New user registered",
-  "Server restarted",
-  "Memory usage high",
-]
+import WebSocket from 'isomorphic-ws';
+import Cookie from "js-cookie";
 
-export function generateLog(): string {
-  const timestamp = new Date().toISOString()
-  const type = logTypes[Math.floor(Math.random() * logTypes.length)]
-  const message = logMessages[Math.floor(Math.random() * logMessages.length)]
-  return `[${timestamp}] ${type}: ${message}`
+
+export async function generateLog(name:string,logstreamer:(log:string)=>void) {
+  const token = await Cookie.get('token');
+  logstreamer(`Connecting to ${name} websocket...`);
+  const ws = new WebSocket(`ws://localhost:3000/logs?token=${token}&projectName=${name}`);
+  ws.onopen =  function open() {
+    logstreamer(`Connected to ${name} websocket!`);
+  }
+  ws.onmessage = function incoming(data: any) {
+    logstreamer(`Received: ${data.data}`);
+  }
 }
 

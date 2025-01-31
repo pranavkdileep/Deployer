@@ -313,7 +313,7 @@ function deploymentTab(){
       </div>
       {maintab === 'general' && generalTab()}
       {maintab === 'deployments' && deploymentTab()}
-      {maintab === 'logs' && <AutoScrollingLogView/>}
+      {maintab === 'logs' && <AutoScrollingLogView name={name!}/>}
       
     </div>
   )
