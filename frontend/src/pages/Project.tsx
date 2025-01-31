@@ -314,7 +314,6 @@ function deploymentTab(){
       {maintab === 'general' && generalTab()}
       {maintab === 'deployments' && deploymentTab()}
       {maintab === 'logs' && <AutoScrollingLogView name={name!}/>}
-      
     </div>
   )
 }
