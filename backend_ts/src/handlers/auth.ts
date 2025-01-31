@@ -1,7 +1,7 @@
 import { Request,Response } from "express-serve-static-core";
 import { LoginDTO, LogingResponseDTO } from "../dtos/login";
 import jwt from 'jsonwebtoken';
-import { expressjwt, Request as JWTRequest } from "express-jwt";
+import {  Request as JWTRequest } from "express-jwt";
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -36,6 +36,8 @@ export async function login(req: Request<{},{},LoginDTO>, res: Response<LogingRe
         });
     }
 }
+
+
 
 export async function testjwt(req: JWTRequest, res: Response){
     res.status(200).json({

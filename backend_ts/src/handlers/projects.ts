@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 import { connection } from "../lib/db";
-import { buildImage, getContainerSates, startContainer, stopContainer, restartContainer } from "../managers/docker";
+import { buildImage, getContainerSates, startContainer, stopContainer, restartContainer, streamLogs } from "../managers/docker";
 import { Build, DeploymentMethod, SetupSource } from "../dtos/build";
 import { setDeploymentmethod, setupSourceFromGit, setupSourceFromLocal } from "../managers/source";
 import fileUpload from "express-fileupload";
@@ -217,3 +217,8 @@ export const getDeployments = async (req: Request<{}, {},{name:string}>, res: Re
     }
 }
 
+export const logStreem = async (name: string, streemlog : (log:string) => void) =>{
+    streamLogs(name,(log:string)=>{
+        streemlog(log);
+    });
+}

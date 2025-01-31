@@ -1,14 +1,21 @@
 import express, { NextFunction, Request, Response } from 'express'
 import loginRoute from './routes/auth'
-import projectRoute from './routes/projects'
+import projectRoute,{logWebsoket} from './routes/projects'
 import systemRouts from './routes/system'
 import dotenv from 'dotenv'
-import { jwtMiddleware } from './utils/middleware'
+import { jwtMiddleware, verifyClient } from './utils/middleware'
 import fileUpload from 'express-fileupload'
+import http from 'http';
+import { WebSocketServer } from 'ws';
+
 dotenv.config()
 
-export const app = express()
+const app = express()
+const server = http.createServer(app);
 const port = 3000
+
+
+
 
 app.use('/', express.static('public'));
 app.use(express.json());
@@ -23,6 +30,11 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})
+
+
+const wss = new WebSocketServer({ server,path:'/logs',verifyClient:verifyClient });
+logWebsoket(wss);
+
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});

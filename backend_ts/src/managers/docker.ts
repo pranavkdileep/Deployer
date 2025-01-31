@@ -8,7 +8,7 @@ const docker = new Dockerode();
 
 
 export async function buildImage(buildconfig: Build) {
-    const { name, dockerfile, port,dir } = buildconfig;
+    const { name, dockerfile, port, dir } = buildconfig;
     const createdeployment = await connection.query(`INSERT INTO deployments (name) VALUES ('${name}') RETURNING *`);
     const deploymentid = createdeployment.rows[0].id;
     console.log(deploymentid);
@@ -93,8 +93,8 @@ export async function stopContainer(name: string) {
         const container = docker.getContainer(listcontainers[0].Id);
         await container.pause();
         const query = `UPDATE projects SET container_id = NULL WHERE name = '${name}' RETURNING *`;
-    }catch(err){
-        console.log('Error Stopping Docker Container',err);
+    } catch (err) {
+        console.log('Error Stopping Docker Container', err);
     }
 }
 
@@ -106,8 +106,8 @@ export async function startContainer(name: string) {
         const container = docker.getContainer(listcontainers[0].Id);
         await container.unpause();
         const query = `UPDATE projects SET container_id = NULL WHERE name = '${name}' RETURNING *`;
-    }catch(err){
-        console.log('Error Stopping Docker Container',err);
+    } catch (err) {
+        console.log('Error Stopping Docker Container', err);
     }
 }
 
@@ -118,19 +118,52 @@ export async function restartContainer(name: string) {
         console.log(listcontainers);
         const container = docker.getContainer(listcontainers[0].Id);
         await container.restart();
-    }catch(err){
-        console.log('Error restarting Docker Container',err);
+    } catch (err) {
+        console.log('Error restarting Docker Container', err);
     }
 }
 
-export async function getContainerSates(name: string){
+export async function getContainerSates(name: string) {
     try {
         console.log('Getting Container States ' + name);
         const listcontainers = await docker.listContainers({ filters: { name: [name] } });
         const container = docker.getContainer(listcontainers[0].Id);
-        const stats = await container.stats({stream:false});
+        const stats = await container.stats({ stream: false });
         return stats;
-    }catch(err){
-        console.log('Error Getting Docker Container States',err);
+    } catch (err) {
+        console.log('Error Getting Docker Container States', err);
+    }
+}
+
+export async function streamLogs(name: string, streamer: (log: string) => void) {
+    try {
+        console.log('Streaming Logs for Container ' + name);
+        const listcontainers = await docker.listContainers({ filters: { name: [name] } });
+        if (!listcontainers.length) {
+            throw new Error('Container not found');
+        }
+        const container = docker.getContainer(listcontainers[0].Id);
+        const logStream = await container.logs({
+            follow: true,
+            stdout: true,
+            stderr: true
+        });
+        logStream.setEncoding('utf-8');
+        logStream.on('data', (data : string) => {
+            const buffer : Buffer = Buffer.from(data);
+            const log = buffer.subarray(8).toString();
+            streamer(log);
+            console.log(log);
+        });
+        logStream.on('error', (err: Error) => {
+            throw err;
+        });
+        logStream.on('end', () => {
+            console.log('Log stream ended');
+        });
+
+    } catch (err) {
+        console.log('Error Getting Docker Container States', err);
+        streamer('Error Getting Docker Container States');
     }
 }
