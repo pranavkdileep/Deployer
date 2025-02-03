@@ -71,7 +71,12 @@ interface ProjectCardProps {
   onRestart?: () => void
   onDelete?: () => void
 }
-
+function handleportclick(port: string) {
+  //open new tab with port
+  const hostname = window.location.hostname;
+  const newwindow = `http://${hostname}:${port}`
+  window.open(newwindow)
+}
 function ProjectCard({
   name,
   description,
@@ -103,7 +108,7 @@ function ProjectCard({
               <span className="text-muted-foreground">Open Ports</span>
               <div className="flex items-center gap-2">
                 {openPorts.map((port) => (
-                  <Button key={port} variant="outline">
+                  <Button key={port} onClick={()=>{handleportclick(port)}} variant="outline">
                     {port}
                   </Button>
                 ))}
