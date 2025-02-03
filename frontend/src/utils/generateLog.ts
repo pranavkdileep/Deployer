@@ -5,7 +5,7 @@ import Cookie from "js-cookie";
 export async function generateLog(name:string,logstreamer:(log:string)=>void) {
   const token = await Cookie.get('token');
   const hostname = window.location.hostname;
-  const port = window.location.port;
+  const port = 3000;
   let url;
   if (port) {
     url = `${hostname}:${port}`;
@@ -13,7 +13,7 @@ export async function generateLog(name:string,logstreamer:(log:string)=>void) {
     url = hostname;
   }
   logstreamer(`Connecting to ${name} websocket...`);
-  const ws = new WebSocket(`wss://${url}/logs?token=${token}&projectName=${name}`);
+  const ws = new WebSocket(`ws://${url}/logs?token=${token}&projectName=${name}`);
   ws.onopen =  function open() {
     logstreamer(`Connected to ${name} websocket!`);
   }
