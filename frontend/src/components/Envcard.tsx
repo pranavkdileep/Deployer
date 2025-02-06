@@ -15,9 +15,9 @@ export default function Envcard() {
   const [variables, setVariables] = useState<EnvVariable[]>([{ id: 1, key: "APIKEY", value: "N283771" }])
   const [showValues, setShowValues] = useState<Record<number, boolean>>({})
 
-  const copyToClipboard = (value:string) => {
-    navigator.clipboard.writeText(value)
-  }
+//   const copyToClipboard = (value:string) => {
+//     navigator.clipboard.writeText(value)
+//   }
 
   const addNewVariable = () => {
     const newId = variables.length > 0 ? Math.max(...variables.map((v) => v.id)) + 1 : 1
