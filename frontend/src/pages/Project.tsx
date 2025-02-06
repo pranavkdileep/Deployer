@@ -298,7 +298,7 @@ function deploymentTab(){
 function envcardfunctions(){
   return (
     <>
-    <Envcard/>
+    <Envcard name={name!}/>
     </>
   )
 }

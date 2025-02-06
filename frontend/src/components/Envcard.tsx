@@ -1,23 +1,47 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Copy, Eye, EyeOff, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { EnvVariable } from "@/interfaces/types"
+import { getProjectEnv, setProjectEnv } from "@/actions/project"
+import { useToast } from "@/hooks/use-toast"
 
-interface EnvVariable {
-  id: number
-  key: string
-  value: string
-}
 
-export default function Envcard() {
-  const [variables, setVariables] = useState<EnvVariable[]>([{ id: 1, key: "APIKEY", value: "N283771" }])
+
+export default function Envcard({name}:{name:string}) {
+  const [variables, setVariables] = useState<EnvVariable[]>([])
   const [showValues, setShowValues] = useState<Record<number, boolean>>({})
+  const { toast } = useToast()
 
 //   const copyToClipboard = (value:string) => {
 //     navigator.clipboard.writeText(value)
 //   }
+  const getEnvVariables = async () => {
+    const envs = await getProjectEnv(name)
+    setVariables(envs)
+  }
+  const setEnvVariables = async () => {
+    const result = await setProjectEnv(name, variables)
+    console.log(result)
+    if (result) {
+      toast({
+        title: "Sucess",
+        description: "Environment Variables updated successfully",
+      })
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to update Environment Variables",
+        variant: 'destructive'
+      })
+    }
+  }
+
+  useEffect(() => {
+    getEnvVariables()
+  }, [])
 
   const addNewVariable = () => {
     const newId = variables.length > 0 ? Math.max(...variables.map((v) => v.id)) + 1 : 1
@@ -94,7 +118,7 @@ export default function Envcard() {
         </Button>
       </CardContent>
       <CardFooter className="flex items-center justify-end border-t pt-6">
-        <Button className="bg-emerald-600 hover:bg-emerald-700">Save</Button>
+        <Button onClick={setEnvVariables} className="bg-emerald-600 hover:bg-emerald-700">Save</Button>
       </CardFooter>
     </Card>
   )

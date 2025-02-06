@@ -5,6 +5,7 @@ import { Build, DeploymentMethod, envfilejson, SetupSource } from "../dtos/build
 import { setDeploymentmethod, setEnvFile, setupSourceFromGit, setupSourceFromLocal } from "../managers/source";
 import fileUpload from "express-fileupload";
 import { Responsetemplate } from "../dtos/common";
+import fs from 'fs';
 
 
 export const getProjectslist = async (req: Request, res: Response) => {
@@ -220,15 +221,35 @@ export const getDeployments = async (req: Request<{}, {},{name:string}>, res: Re
 export const setEnvFileHandler = async (req: Request<{}, {}, { name: string, envobj: envfilejson }>, res: Response) => {
     const { name, envobj } = req.body;
     if (!name || !envobj) {
-        res.status(400).json({ message: 'Invalid Request!' });
+        res.status(400).json({ message: 'Invalid Request!', success: false });
     }
     else {
         const setresult = await setEnvFile(name, envobj);
         if (setresult) {
-            res.status(200).json({ message: 'Env File Set' });
+            res.status(200).json({ message: 'Env File Set', success: true });
         }
         else {
-            res.status(500).json({ message: 'Error Setting Env File' });
+            res.status(500).json({ message: 'Error Setting Env File', success: false });
+        }
+    }
+}
+export const getEnvFileHandler = async (req: Request<{}, {}, { name: string }>, res: Response) => {
+    const { name } = req.body;
+    if (!name) {
+        res.status(400).json({ message: 'Invalid Request!' });
+    }
+    else {
+        try{
+            const projectPath = `../projects/${name}/envfile.json`;
+            if (fs.existsSync(projectPath)) {
+                const envfile = fs.readFileSync(projectPath);
+                res.status(200).json({sucess:true,data:JSON.parse(envfile.toString())});
+            }
+            else {
+                res.status(404).json({sucess:false,message:'Env File Not Found'});
+            }
+        }catch(err){
+            res.status(500).json({sucess:false,message:'Error Getting Env File'});
         }
     }
 }

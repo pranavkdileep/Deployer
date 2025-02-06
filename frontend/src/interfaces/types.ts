@@ -45,3 +45,8 @@ export interface DeploymentMethod {
     dockerFile?: string;
     port?: number;
 }
+export interface EnvVariable {
+  id: number
+  key: string
+  value: string
+}
