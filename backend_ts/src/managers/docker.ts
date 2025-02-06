@@ -6,6 +6,12 @@ import Dockerode from 'dockerode';
 
 const docker = new Dockerode();
 
+interface envfilejson {
+    id: number,
+    key: string,
+    value: string,
+}
+
 
 export async function buildImage(buildconfig: Build) {
     const { name, dockerfile, port, dir } = buildconfig;
@@ -46,10 +52,17 @@ export async function runContainer(runconfig: Build) {
     const { name, port } = runconfig;
     const portstring = `${port}/tcp`;
     const path = `../projects/${name}/`;
-    const outputstream = fs.createWriteStream(`${path}runout.txt`);
-    //random port between 4500 and 4650
+    //ToDo: check if container already running and stop it
     const hostport = Math.floor(Math.random() * (4650 - 4500 + 1)) + 4500;
-
+    let envstring:string[] = [];
+    if (fs.existsSync(`${path}envfile.json`)) {
+        const envfile = fs.readFileSync(`${path}envfile.json`, 'utf-8');
+        const envjson = JSON.parse(envfile) as envfilejson[];
+        const env = envjson.map((env) => {
+            envstring.push(`${env.key}=${env.value}`);
+            return `${env.key}=${env.value}`;
+        });
+    }
     try {
         // check any container running with name the remove it
         const listcontainers = await docker.listContainers({ filters: { name: [name] } });
@@ -65,6 +78,7 @@ export async function runContainer(runconfig: Build) {
             ExposedPorts: {
                 [portstring]: {}
             },
+            Env: envstring,
             HostConfig: {
                 PortBindings: {
                     [portstring]: [
@@ -149,8 +163,8 @@ export async function streamLogs(name: string, streamer: (log: string) => void) 
             stderr: true
         });
         logStream.setEncoding('utf-8');
-        logStream.on('data', (data : string) => {
-            const buffer : Buffer = Buffer.from(data);
+        logStream.on('data', (data: string) => {
+            const buffer: Buffer = Buffer.from(data);
             const log = buffer.subarray(8).toString();
             streamer(log);
         });
