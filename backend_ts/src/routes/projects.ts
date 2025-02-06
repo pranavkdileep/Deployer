@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { jwtMiddleware } from "../utils/middleware";
-import {createProjectHandler, buildImageHandler,restartContainerHandler, getProjectDetails, getProjectslist, startContainerHandler, stopContainerHandler, setupProjectSourceHandeler, uploadZipHandler, setDeploymentmethodHandler, deployHandler, getDeployments, logStreem } from "../handlers/projects";
+import {createProjectHandler, buildImageHandler,restartContainerHandler, getProjectDetails, getProjectslist, startContainerHandler, stopContainerHandler, setupProjectSourceHandeler, uploadZipHandler, setDeploymentmethodHandler, deployHandler, getDeployments, logStreem, setEnvFileHandler } from "../handlers/projects";
 import { RawData, Server } from "ws";
 import { parse } from "url";
 
@@ -22,6 +22,7 @@ router.post("/setdeploymentmethod",jwtMiddleware,setDeploymentmethodHandler);
 router.post("/deploy",jwtMiddleware,deployHandler);
 router.post("/craeteProject",jwtMiddleware,createProjectHandler);
 router.post("/getDeployments",jwtMiddleware,getDeployments);
+router.post("/setenv",jwtMiddleware,setEnvFileHandler);
 
 export const logWebsoket =  (wss : Server) => {
     wss.on('connection', function connection(ws,req) {

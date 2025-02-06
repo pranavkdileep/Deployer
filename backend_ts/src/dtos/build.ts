@@ -1,3 +1,9 @@
+export interface envfilejson {
+    id: number,
+    key: string,
+    value: string,
+}
+
 export interface Build {
     name: string;
     dockerfile: string;

@@ -1,4 +1,4 @@
-import { Build } from '../dtos/build';
+import { Build,envfilejson } from '../dtos/build';
 import fs from 'fs';
 const { spawnSync } = require('child_process');
 import { connection } from "../lib/db";
@@ -6,11 +6,7 @@ import Dockerode from 'dockerode';
 
 const docker = new Dockerode();
 
-interface envfilejson {
-    id: number,
-    key: string,
-    value: string,
-}
+
 
 
 export async function buildImage(buildconfig: Build) {

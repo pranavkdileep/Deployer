@@ -1,8 +1,8 @@
 import { Response, Request } from "express";
 import { connection } from "../lib/db";
 import { buildImage, getContainerSates, startContainer, stopContainer, restartContainer, streamLogs } from "../managers/docker";
-import { Build, DeploymentMethod, SetupSource } from "../dtos/build";
-import { setDeploymentmethod, setupSourceFromGit, setupSourceFromLocal } from "../managers/source";
+import { Build, DeploymentMethod, envfilejson, SetupSource } from "../dtos/build";
+import { setDeploymentmethod, setEnvFile, setupSourceFromGit, setupSourceFromLocal } from "../managers/source";
 import fileUpload from "express-fileupload";
 import { Responsetemplate } from "../dtos/common";
 
@@ -213,6 +213,22 @@ export const getDeployments = async (req: Request<{}, {},{name:string}>, res: Re
         }
         else{
             res.status(200).json(result.rows);
+        }
+    }
+}
+
+export const setEnvFileHandler = async (req: Request<{}, {}, { name: string, envobj: envfilejson }>, res: Response) => {
+    const { name, envobj } = req.body;
+    if (!name || !envobj) {
+        res.status(400).json({ message: 'Invalid Request!' });
+    }
+    else {
+        const setresult = await setEnvFile(name, envobj);
+        if (setresult) {
+            res.status(200).json({ message: 'Env File Set' });
+        }
+        else {
+            res.status(500).json({ message: 'Error Setting Env File' });
         }
     }
 }
