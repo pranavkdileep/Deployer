@@ -1,11 +1,11 @@
 import { Response, Request } from "express";
 import { connection } from "../lib/db";
-import { buildImage, getContainerSates, startContainer, stopContainer, restartContainer, streamLogs } from "../managers/docker";
+import { buildImage, getContainerSates, startContainer, stopContainer, restartContainer, streamLogs, streamBuildout } from "../managers/docker";
 import { Build, DeploymentMethod, envfilejson, SetupSource } from "../dtos/build";
 import { setDeploymentmethod, setEnvFile, setupSourceFromGit, setupSourceFromLocal } from "../managers/source";
 import fileUpload from "express-fileupload";
 import { Responsetemplate } from "../dtos/common";
-import fs from 'fs';
+import fs, { stat } from 'fs';
 
 
 export const getProjectslist = async (req: Request, res: Response) => {
@@ -251,6 +251,22 @@ export const getEnvFileHandler = async (req: Request<{}, {}, { name: string }>, 
         }catch(err){
             res.status(500).json({sucess:false,message:'Error Getting Env File'});
         }
+    }
+}
+
+export const streamBuildoutHandler = async (req: Request<{}, {}, { name: string }>, res: Response) => {
+    if (!req.body.name) {
+        res.status(400).json({ message: 'Invalid Request!',success:false });
+    }
+    else {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        const { name } = req.body;
+        res.write('data: Starting Buildout\n\n');
+        streamBuildout(name,(log:string)=>{
+            res.write(`data: ${log}\n\n`);
+        });
     }
 }
 

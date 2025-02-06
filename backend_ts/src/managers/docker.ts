@@ -3,6 +3,7 @@ import fs from 'fs';
 const { spawnSync } = require('child_process');
 import { connection } from "../lib/db";
 import Dockerode from 'dockerode';
+import { spawn } from 'child_process';
 
 const docker = new Dockerode();
 
@@ -15,33 +16,44 @@ export async function buildImage(buildconfig: Build) {
     const deploymentid = createdeployment.rows[0].id;
     console.log(deploymentid);
     const path = `../projects/${name}/${dir ? dir : ''}`;
-    //build the image in the path
-    const buildouttxt = fs.openSync(`${path}buildout.txt`, 'w');
     const dockerfilePath = path + dockerfile;
+    const buildout = `${path}buildout.txt`;
+    if (fs.existsSync(buildout)) {
+        fs.writeFileSync(buildout, '');
+    }
     const dockerBuild = `docker build -t ${name} -f ${dockerfilePath} ${path}`;
-    const build = spawnSync(dockerBuild, { shell: true, stdio: [buildouttxt, buildouttxt, buildouttxt] });
-    if (build.status === 0) {
-        console.log('Docker Image Built Successfully');
-        //update build status in db projects table and print the rows
-        const query = `UPDATE projects SET buildstatus = 'success' WHERE name = '${name}' RETURNING *`;
-        const resuilt = await connection.query(query);
-        console.log(resuilt.rows);
-        await connection.query(`UPDATE deployments SET status = 'success' WHERE id = '${deploymentid}'`);
-        runContainer({
-            name: name,
-            port: port,
-            dockerfile: dockerfile,
-        });
-    }
-    else {
-        console.log('Error Building Docker Image');
-        const query = `UPDATE projects SET buildstatus = 'failed' WHERE name = '${name}' RETURNING *`;
-        const resuilt = await connection.query(query);
-        console.log(resuilt.rows);
-        await connection.query(`UPDATE deployments SET status = 'failed' WHERE id = '${deploymentid}'`);
-    }
-    const buildouts = fs.readFileSync(`${path}buildout.txt`, 'utf-8');
-    await connection.query('UPDATE deployments SET log = $1 WHERE id = $2', [buildouts, deploymentid]);
+    const build = spawn(dockerBuild, { shell: true });
+
+    build.stdout.on('data', (data: Buffer) => {
+        fs.appendFileSync(buildout, data.toString());
+    });
+
+    build.stderr.on('data', (data: Buffer) => {
+        fs.appendFileSync(buildout, data.toString());
+    });
+
+    build.on('close', async (code: number) => {
+        if (code === 0) {
+            console.log('Docker Image Built Successfully');
+            const query = `UPDATE projects SET buildstatus = 'success' WHERE name = '${name}' RETURNING *`;
+            const resuilt = await connection.query(query);
+            console.log(resuilt.rows);
+            await connection.query(`UPDATE deployments SET status = 'success' WHERE id = '${deploymentid}'`);
+            runContainer({
+                name: name,
+                port: port,
+                dockerfile: dockerfile,
+            });
+        } else {
+            console.log('Error Building Docker Image');
+            const query = `UPDATE projects SET buildstatus = 'failed' WHERE name = '${name}' RETURNING *`;
+            const resuilt = await connection.query(query);
+            console.log(resuilt.rows);
+            await connection.query(`UPDATE deployments SET status = 'failed' WHERE id = '${deploymentid}'`);
+        }
+        const buildouts = fs.readFileSync(`${path}buildout.txt`, 'utf-8');
+        await connection.query('UPDATE deployments SET log = $1 WHERE id = $2', [buildouts, deploymentid]);
+    });
 }
 
 export async function runContainer(runconfig: Build) {
@@ -171,6 +183,35 @@ export async function streamLogs(name: string, streamer: (log: string) => void) 
             console.log('Log stream ended');
         });
 
+    } catch (err) {
+        console.log('Error Getting Docker Container States', err);
+        streamer('Error Getting Docker Container States');
+    }
+}
+
+export async function streamBuildout(name: string, streamer: (log: string) => void) {
+    try {
+        const path = `../projects/${name}/`;
+        const filePath = `${path}buildout.txt`;
+        while(!fs.existsSync(filePath)){
+            streamer('Waiting for build to start');
+            console.log(fs.existsSync(filePath));
+            await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+        //streamer(fs.readFileSync(filePath, 'utf-8'));
+        fs.watch(filePath, (eventType) => {
+            if (eventType === 'change') {
+                fs.readFile(filePath, 'utf8', (err, data) => {
+                    if (err) {
+                        console.error('Error reading file:', err);
+                    } else {
+                        const encoded = Buffer.from(data).toString('base64');
+                        streamer(encoded);
+                        console.log('New file contents:\n', data);
+                    }
+                });
+            }
+        });
     } catch (err) {
         console.log('Error Getting Docker Container States', err);
         streamer('Error Getting Docker Container States');
