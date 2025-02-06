@@ -12,6 +12,7 @@ import { DeploymentMethod } from '@/interfaces/types'
 import { useToast } from '@/hooks/use-toast'
 import DeploymentHistory from '@/components/deployment-history'
 import { AutoScrollingLogView } from '@/components/AutoScrollingLogView'
+import Envcard from '@/components/Envcard'
 
 export default function DeploymentSettings() {
   const { name } = useParams<{ name: string }>();
@@ -294,6 +295,14 @@ function deploymentTab(){
   )
 }
 
+function envcardfunctions(){
+  return (
+    <>
+    <Envcard/>
+    </>
+  )
+}
+
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -314,6 +323,7 @@ function deploymentTab(){
       {maintab === 'general' && generalTab()}
       {maintab === 'deployments' && deploymentTab()}
       {maintab === 'logs' && <AutoScrollingLogView name={name!}/>}
+      {maintab === 'environment' && envcardfunctions()}
     </div>
   )
 }
