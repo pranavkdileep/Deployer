@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Copy, Eye, EyeOff, Plus } from "lucide-react"
+import { Copy, Eye, EyeOff, Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -83,6 +83,14 @@ export default function Envcard({name}:{name:string}) {
                     className="h-8 w-8"
                   >
                     <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setVariables((vars) => vars.filter((v) => v.id !== variable.id))}
+                    className="h-8 w-8"
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
