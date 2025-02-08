@@ -2,6 +2,7 @@ import { DeploymentMethod, EnvVariable } from "@/interfaces/types";
 import logout from "@/lib/logout";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import Cookie from "js-cookie";
+import { Buffer } from 'buffer';
 
 export const stopProject = async (name: string) => {
     const token = Cookie.get('token');
@@ -293,5 +294,38 @@ export const setProjectEnv = async (name: string, variables: EnvVariable[]): Pro
         }
     } catch (e) {
         return false;
+    }
+}
+
+export const buildoutstreem = async (name:string, buildout : (log:string)=>void) =>{
+    let data = JSON.stringify({
+        "name": name
+    });
+
+    
+    try {
+        const response = await fetch('/api/projects/steambuildout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Cookie.get('token')}`
+            },
+            body: data
+        });
+        const reader = response.body!.getReader();
+        const textDecoder = new TextDecoder();
+        const read = () =>{
+            reader.read().then(({done, value})=>{
+                if(done){
+                    return;
+                }
+                const base60text = textDecoder.decode(value);
+                buildout(Buffer.from(base60text.replace('data: ',''), 'base64').toString());
+                read();
+            });
+        }
+        read();
+    } catch (e) {
+        console.log(e);
     }
 }

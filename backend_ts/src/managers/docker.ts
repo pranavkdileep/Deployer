@@ -194,11 +194,11 @@ export async function streamBuildout(name: string, streamer: (log: string) => vo
         const path = `../projects/${name}/`;
         const filePath = `${path}buildout.txt`;
         while(!fs.existsSync(filePath)){
-            streamer('Waiting for build to start');
+            streamer(Buffer.from('Waiting for build to start').toString('base64'));
             console.log(fs.existsSync(filePath));
             await new Promise(resolve => setTimeout(resolve, 3000));
         }
-        //streamer(fs.readFileSync(filePath, 'utf-8'));
+        streamer(Buffer.from(fs.readFileSync(filePath)).toString('base64'));
         fs.watch(filePath, (eventType) => {
             if (eventType === 'change') {
                 fs.readFile(filePath, 'utf8', (err, data) => {
@@ -214,6 +214,6 @@ export async function streamBuildout(name: string, streamer: (log: string) => vo
         });
     } catch (err) {
         console.log('Error Getting Docker Container States', err);
-        streamer('Error Getting Docker Container States');
+        streamer(Buffer.from('Error Getting Docker Container States').toString('base64'));
     }
 }

@@ -263,7 +263,6 @@ export const streamBuildoutHandler = async (req: Request<{}, {}, { name: string 
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
         const { name } = req.body;
-        res.write('data: Starting Buildout\n\n');
         streamBuildout(name,(log:string)=>{
             res.write(`data: ${log}\n\n`);
         });

@@ -13,6 +13,8 @@ import { useToast } from '@/hooks/use-toast'
 import DeploymentHistory from '@/components/deployment-history'
 import { AutoScrollingLogView } from '@/components/AutoScrollingLogView'
 import Envcard from '@/components/Envcard'
+import BuildOut from '@/components/BuildOut'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 export default function DeploymentSettings() {
   const { name } = useParams<{ name: string }>();
@@ -29,6 +31,7 @@ export default function DeploymentSettings() {
   const [githubBranch, setGithubBranch] = useState('');
   const { toast } = useToast()
   const [maintab, setMainTab] = useState('general');
+  const [isBuildoutOpen, setIsBuildoutOpen] = useState(false);
 
   const handleFileUpload = async () => {
     console.log("Uploading file");
@@ -105,6 +108,7 @@ export default function DeploymentSettings() {
           title: 'Success',
           description: 'Project deployed successfully'
         });
+        setIsBuildoutOpen(true);
       }else{
         toast({
           title: 'Failed',
@@ -116,7 +120,17 @@ export default function DeploymentSettings() {
 }
 
 function generalTab(){
+  
+
   return(
+    <>
+    <Dialog open={isBuildoutOpen} onOpenChange={setIsBuildoutOpen}>
+              
+              <DialogContent className='p-0 w-full max-w-2xl mx-auto '>
+                {buildoutcard()}
+                
+              </DialogContent>
+            </Dialog>
     <Card>
         <CardHeader>
           <CardTitle>Deploy Settings</CardTitle>
@@ -284,6 +298,7 @@ function generalTab(){
           </div>
         </CardContent>
       </Card>
+      </>
   )
 }
 
@@ -299,6 +314,14 @@ function envcardfunctions(){
   return (
     <>
     <Envcard name={name!}/>
+    </>
+  )
+}
+
+function buildoutcard(){
+  return (
+    <>
+    <BuildOut name={name!}/>
     </>
   )
 }
