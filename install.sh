@@ -12,7 +12,7 @@ installDockerDebian() {
     for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do apt-get -y remove $pkg; done
     #install docker
     apt-get update
-    apt-get -y install ca-certificates curl
+    apt-get -y install ca-certificates curl nginx
     install -m 0755 -d /etc/apt/keyrings
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
     chmod a+r /etc/apt/keyrings/docker.asc
@@ -27,7 +27,7 @@ installDockerDebian() {
     install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 }
 installDockerCentos() {
-    yum install -y yum-utils device-mapper-persistent-data lvm2 curl git
+    yum install -y yum-utils device-mapper-persistent-data lvm2 curl git nginx
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     yum install -y docker-ce docker-ce-cli containerd.io
     echo "Docker installed"

@@ -212,6 +212,7 @@ export default function Dashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [projectName, setProjectName] = useState('')
   const [projectDescription, setProjectDescription] = useState('')
+  const [projectHostport, setProjectHostport] = useState('')
   const { toast } = useToast()
   // const metricsdumy = [
   //   {
@@ -367,7 +368,7 @@ export default function Dashboard() {
   async function handleCreateProject(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     console.log(projectName, projectDescription)
-    const respose = await createProject(projectName, projectDescription)
+    const respose = await createProject(projectName, projectDescription, projectHostport)
     if (respose.success) {
       toast({
         title: "Project Created",
@@ -440,6 +441,17 @@ export default function Dashboard() {
                         id="project-name"
                         value={projectName}
                         onChange={(e) => setProjectName(e.target.value)}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="project-hostport" className="text-right">
+                        Hostport
+                      </Label>
+                      <Input
+                        id="project-hostport"
+                        value={projectHostport}
+                        onChange={(e) => setProjectHostport(e.target.value)}
                         className="col-span-3"
                       />
                     </div>

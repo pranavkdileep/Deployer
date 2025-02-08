@@ -60,8 +60,9 @@ export async function runContainer(runconfig: Build) {
     const { name, port } = runconfig;
     const portstring = `${port}/tcp`;
     const path = `../projects/${name}/`;
-    //ToDo: check if container already running and stop it
-    const hostport = Math.floor(Math.random() * (4650 - 4500 + 1)) + 4500;
+    //ToDo: get hostport from db
+    const hostportrq = await connection.query(`SELECT hostport FROM projects WHERE name = '${name}'`);
+    const hostport = hostportrq.rows[0].hostport;
     let envstring:string[] = [];
     if (fs.existsSync(`${path}envfile.json`)) {
         const envfile = fs.readFileSync(`${path}envfile.json`, 'utf-8');

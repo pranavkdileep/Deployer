@@ -185,14 +185,14 @@ export const deployHandler = async (req: Request<{}, {}, { name: string }>, res:
 
 }
 
-export const createProjectHandler = async (req: Request<{}, {}, { name: string, description: string }>, res: Response) => {
+export const createProjectHandler = async (req: Request<{}, {}, { name: string, description: string,hostport:number }>, res: Response) => {
     try {
-        const { name, description } = req.body;
-        if (!name || !description) {
+        const { name, description,hostport } = req.body;
+        if (!name || !description || !hostport) {
             res.status(400).json({ message: 'Invalid Request!', success: false });
         }
         else {
-            const query = `INSERT INTO projects (name,description) VALUES ('${name}','${description}') RETURNING *`;
+            const query = `INSERT INTO projects (name,description,hostport) VALUES ('${name}','${description}',${hostport}) RETURNING *`;
             const result = await connection.query(query);
             res.status(200).json({ message: 'Project Created', success: true, data: result.rows[0] });
         }

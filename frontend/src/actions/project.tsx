@@ -182,11 +182,12 @@ export const deployProject = async (name: string, oncomplite: (success: boolean)
     }
 }
 
-export const createProject = async (name: string, description: string) => {
+export const createProject = async (name: string, description: string,hostport:string) => {
     try {
         let data = JSON.stringify({
             "name": name,
-            "description": description
+            "description": description,
+            "hostport": hostport
         });
         let config = {
             method: 'post',
