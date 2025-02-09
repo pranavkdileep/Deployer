@@ -50,3 +50,13 @@ export async function setupDomain(domain: domainconfig) {
     console.log('Domain Setup Complete');
 
 }
+
+// demo usage
+setupDomain({
+    name: 'test',
+    domain: 'test.com',
+    port: 8000,
+    ssl: true,
+    customSSL: false,
+    redirectHttps: false
+})
