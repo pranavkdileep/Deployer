@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { exec } from 'child_process';
+import { exec,execSync } from 'child_process';
 
 export interface domainconfig {
     name: string;
@@ -9,6 +9,32 @@ export interface domainconfig {
     customSSL: boolean;
     redirectHttps: boolean;
 }
+
+function installCertbot(): void {
+    try {
+        execSync('certbot --version', { stdio: 'ignore' });
+        console.log('Certbot is already installed.');
+    } catch (error) {
+        console.log('Installing Certbot...');
+        execSync('sudo apt update && sudo apt install -y certbot python3-certbot-nginx', { stdio: 'inherit' });
+    }
+}
+
+function generateSSLCertificate(domain: string): void {
+    const command = `sudo certbot --nginx -d ${domain} --non-interactive --agree-tos -m admin@${domain}`;
+    try {
+        execSync(command, { stdio: 'inherit' });
+        console.log(`SSL certificate successfully generated for ${domain}`);
+    } catch (error) {
+        console.error(`Failed to generate SSL certificate for ${domain}`);
+    }
+}
+
+function restartNginx(): void {
+    execSync('sudo systemctl restart nginx', { stdio: 'inherit' });
+    console.log('Nginx restarted successfully.');
+}
+
 
 function generateNginxConfig(domain: domainconfig) {
     let config;
@@ -48,6 +74,11 @@ export async function setupDomain(domain: domainconfig) {
     // restart nginx
     exec('sudo systemctl restart nginx');
     console.log('Domain Setup Complete');
+    if (!domain.customSSL) {
+        installCertbot();
+        generateSSLCertificate(domain.domain);
+        restartNginx();
+    }
 
 }
 
