@@ -85,7 +85,7 @@ export async function setupDomain(domain: domainconfig) {
 // demo usage
 setupDomain({
     name: 'test',
-    domain: 'test.com',
+    domain: 'testdigi.pkd.in.net',
     port: 8000,
     ssl: true,
     customSSL: false,
