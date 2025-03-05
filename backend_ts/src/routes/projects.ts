@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { jwtMiddleware } from "../utils/middleware";
-import {createProjectHandler, buildImageHandler,restartContainerHandler, getProjectDetails, getProjectslist, startContainerHandler, stopContainerHandler, setupProjectSourceHandeler, uploadZipHandler, setDeploymentmethodHandler, deployHandler, getDeployments, logStreem, setEnvFileHandler, getEnvFileHandler, streamBuildoutHandler } from "../handlers/projects";
+import {createProjectHandler, buildImageHandler,restartContainerHandler, getProjectDetails, getProjectslist, startContainerHandler, stopContainerHandler, setupProjectSourceHandeler, uploadZipHandler, setDeploymentmethodHandler, deployHandler, getDeployments, logStreem, setEnvFileHandler, getEnvFileHandler, streamBuildoutHandler, deleteContainerHandler } from "../handlers/projects";
 import { RawData, Server } from "ws";
 import { parse } from "url";
 
@@ -12,6 +12,7 @@ const router = Router();
 router.get("/list",jwtMiddleware,getProjectslist);
 router.post("/buildimage",jwtMiddleware,buildImageHandler);
 router.post("/stopcontainer",jwtMiddleware,stopContainerHandler);
+router.post("/deletecontainer",jwtMiddleware,deleteContainerHandler);
 router.post("/startcontainer",jwtMiddleware,startContainerHandler);
 router.post("/restartcontainer",jwtMiddleware,restartContainerHandler);
 router.post("/getcontainerstates",jwtMiddleware,getProjectDetails);

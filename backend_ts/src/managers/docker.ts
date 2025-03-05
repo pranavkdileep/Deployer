@@ -4,6 +4,7 @@ const { spawnSync } = require('child_process');
 import { connection } from "../lib/db";
 import Dockerode from 'dockerode';
 import { spawn } from 'child_process';
+import { deleteProject } from './source';
 
 const docker = new Dockerode();
 
@@ -116,6 +117,28 @@ export async function stopContainer(name: string) {
         const container = docker.getContainer(listcontainers[0].Id);
         await container.pause();
         const query = `UPDATE projects SET container_id = NULL WHERE name = '${name}' RETURNING *`;
+    } catch (err) {
+        console.log('Error Stopping Docker Container', err);
+    }
+}
+
+export async function deleteContainer(name: string) {
+    //delete and remove clear the container
+    try {
+        console.log('Deleting Container ' + name);
+        const listcontainers = await docker.listContainers({ filters: { name: [name] } });
+        console.log(listcontainers);
+        const container = docker.getContainer(listcontainers[0].Id);
+        await container.stop();
+        await container.remove();
+        //delete image
+        const images = await docker.listImages({ filters: { reference: [name] } });
+        await docker.getImage(images[0].Id).remove();
+        const query = `DELETE FROM projects WHERE name = '${name}' RETURNING *`;
+        const resuilt = await connection.query(query);
+        console.log(resuilt.rows);
+        //delete project folder
+        deleteProject(name);
     } catch (err) {
         console.log('Error Stopping Docker Container', err);
     }

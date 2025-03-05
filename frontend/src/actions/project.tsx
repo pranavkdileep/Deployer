@@ -37,6 +37,38 @@ export const stopProject = async (name: string) => {
     }
 }
 
+export const deleteProject = async (name:string,isSuccess : (yes : boolean) => void)=>{
+    const token = Cookie.get('token');
+    if (!token) {
+        window.location.href = '/';
+    }
+    try{
+        let data = JSON.stringify({
+            "name":name
+        })
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: '/api/projects/deletecontainer',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            data: data
+        };
+        const response = await axios.request(config);
+        const res : {success:boolean,message:string} = response.data;
+        if(res.success){
+            isSuccess(true);
+        }else{
+            isSuccess(false);
+        }
+    }catch(e){
+        console.log(e);
+        isSuccess(false);
+    }
+}
+
 export const restartProject = async (name: string) => {
     const token = Cookie.get('token');
     if (!token) {

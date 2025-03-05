@@ -26,7 +26,7 @@ import { Progress } from '@/components/ui/progress'
 import { useEffect, useState } from 'react'
 import { getProjects, getSystemanalysis } from '@/actions/getHomeanalysis'
 import { HomeDto, ProjectsDto } from '@/interfaces/types'
-import { createProject, restartProject, startProject, stopProject } from '@/actions/project'
+import { createProject, deleteProject, restartProject, startProject, stopProject } from '@/actions/project'
 import { Link } from 'react-router-dom'
 import { Textarea } from './ui/textarea'
 import { Input } from './ui/input'
@@ -214,76 +214,7 @@ export default function Dashboard() {
   const [projectDescription, setProjectDescription] = useState('')
   const [projectHostport, setProjectHostport] = useState('')
   const { toast } = useToast()
-  // const metricsdumy = [
-  //   {
-  //     title: 'CPU',
-  //     value: '0.5%',
-  //     description: '',
-  //     icon: <Cpu className="h-4 w-4 text-orange-500" />,
-  //     className: 'bg-orange-50 dark:bg-orange-950/50',
-  //   },
-  //   {
-  //     title: 'Memory',
-  //     value: '18.0%',
-  //     description: '1066 MB / 5916 MB',
-  //     icon: <Memory className="h-4 w-4 text-blue-500" />,
-  //     className: 'bg-blue-50 dark:bg-blue-950/50',
-  //   },
-  //   {
-  //     title: 'Disk',
-  //     value: '24.3%',
-  //     description: '10.9 GB / 44.9 GB',
-  //     icon: <HardDrive className="h-4 w-4 text-green-500" />,
-  //     className: 'bg-green-50 dark:bg-green-950/50',
-  //   },
-  //   {
-  //     title: 'Network',
-  //     value: '0.00 MB',
-  //     description: '↑ 0.00 MB ↓ 0.00 MB',
-  //     icon: <Network className="h-4 w-4 text-gray-500" />,
-  //     className: 'bg-gray-50 dark:bg-gray-950/50',
-  //   },
-  // ]
 
-
-  // const projects = [
-  //   { 
-  //     name: 'Frontend App', 
-  //     description: 'Main customer-facing web application',
-  //     status: 'running' as const,
-  //     createdAt: '2 months ago',
-  //     lastDeployed: '2 hours ago',
-  //     cpu: 45,
-  //     memory: 62
-  //   },
-  //   { 
-  //     name: 'Backend API', 
-  //     description: 'RESTful API service for the frontend',
-  //     status: 'stopped' as const,
-  //     createdAt: '3 months ago',
-  //     lastDeployed: '1 day ago',
-  //     cpu: 0,
-  //     memory: 12
-  //   },
-  //   { 
-  //     name: 'Database', 
-  //     description: 'Primary PostgreSQL database instance',
-  //     status: 'error' as const,
-  //     createdAt: '3 months ago',
-  //     lastDeployed: '5 days ago',
-  //     cpu: 89,
-  //     memory: 95
-  //   },
-  //   { 
-  //     name: 'Cache Server', 
-  //     description: 'Redis cache for improved performance',
-  //     status: 'running' as const,
-  //     createdAt: '1 month ago',
-  //     lastDeployed: '12 hours ago',
-  //     cpu: 23,
-  //     memory: 45
-  //   },
-  // ]
 
   function setDumymetrics() {
     const metricsdumy = [
@@ -504,7 +435,20 @@ export default function Dashboard() {
                       onStop={() => stopProject(project.name)}
                       onStart={() => startProject(project.name)}
                       onRestart={() => restartProject(project.name)}
-                      onDelete={() => console.log('Delete', project.name)}
+                      onDelete={() => deleteProject(project.name,(res)=>{
+                        if(res){
+                          toast({
+                            title: "Project Deleted",
+                            description: "Project Deleted Successfully",
+                          })
+                          constructProjectCards()
+                        }else{
+                          toast({
+                            title: "Error",
+                            description: "Error Deleting Project",
+                          })
+                        }
+                      })}
                     />
                   ))}
                 </div>

@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 import { connection } from "../lib/db";
-import { buildImage, getContainerSates, startContainer, stopContainer, restartContainer, streamLogs, streamBuildout } from "../managers/docker";
+import { buildImage, getContainerSates, startContainer, stopContainer, restartContainer, streamLogs, streamBuildout, deleteContainer } from "../managers/docker";
 import { Build, DeploymentMethod, envfilejson, SetupSource } from "../dtos/build";
 import { setDeploymentmethod, setEnvFile, setupSourceFromGit, setupSourceFromLocal } from "../managers/source";
 import fileUpload from "express-fileupload";
@@ -59,6 +59,21 @@ export const startContainerHandler = async (req: Request<{}, {}, { name: string 
             startContainer(name);
         } catch (err) {
             res.status(500).json({ message: 'Error Starting Container' });
+        }
+    }
+}
+
+export const deleteContainerHandler = async (req: Request<{}, {}, { name: string }>, res: Response) => {
+    const { name } = req.body;
+    if (!name) {
+        res.status(400).json({ message: 'Invalid Request!',success:false });
+    }
+    else {
+        try {
+            res.status(200).json({ message: 'Deleting Container Requested',success:true });
+            deleteContainer(name);
+        } catch (err) {
+            res.status(500).json({ message: 'Error Deleting Container',success:false });
         }
     }
 }

@@ -68,9 +68,12 @@ export async function setupDomain(domain: domainconfig) {
     let nginxConfig = generateNginxConfig(domain);
     // write nginx config
     const filepath = `/etc/nginx/sites-available/${domain.name}`
+    if(fs.existsSync(filepath)){
+        //delete the file
+        fs.unlinkSync(filepath);
+    }
     fs.writeFileSync(filepath, nginxConfig!);
-    // create symbolic link
-    fs.symlinkSync(filepath, `/etc/nginx/sites-enabled/${domain.name}`);
+
     // restart nginx
     exec('sudo systemctl restart nginx');
     console.log('Domain Setup Complete');

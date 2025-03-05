@@ -76,3 +76,10 @@ export async function setEnvFile(name: string, envobj: envfilejson): Promise<boo
         return false;
     }
 }
+
+export const deleteProject = async (name: string) => {
+    const projectPath = `${projectFolder}/${name}`;
+    if (fs.existsSync(projectPath)) {
+        fs.rmSync(projectPath, { recursive: true });
+    }
+}
