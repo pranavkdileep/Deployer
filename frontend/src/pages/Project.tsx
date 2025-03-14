@@ -119,6 +119,7 @@ export default function DeploymentSettings() {
         ...extrafornix
       };
       console.log(config);
+      setExtraforNix(extrafornix);
       saveDeploymentSettings(config,(success) =>{
         if(success){
           toast({
