@@ -27,6 +27,7 @@ installDockerDebian() {
 #     install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
     curl -fsSL https://get.docker.com -o get-docker.sh
     sh get-docker.sh
+    curl -sSL https://nixpacks.com/install.sh | bash
 }
 installDockerCentos() {
     yum install -y yum-utils device-mapper-persistent-data lvm2 curl git nginx

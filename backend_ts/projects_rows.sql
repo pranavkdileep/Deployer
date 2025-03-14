@@ -12,7 +12,12 @@ CREATE TABLE projects (
     sourcestatus VARCHAR(50),
     port INTEGER,
     deploytype VARCHAR(50),
-    sourcepath TEXT
+    sourcepath TEXT,
+    pkgs VARCHAR(100),
+    apts VARCHAR(100),
+    install_cmd VARCHAR(100),
+    build_cmd VARCHAR(100),
+    start_cmd VARCHAR(100),
 );
 CREATE TABLE deployments (
     id SERIAL PRIMARY KEY, -- Automatically generates unique IDs

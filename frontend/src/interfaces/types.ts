@@ -44,6 +44,11 @@ export interface DeploymentMethod {
     buildtype: 'docker' | 'nix';
     dockerFile?: string;
     port?: number;
+    pkgs?: string;
+    apts?: string;
+    install_cmd?: string;
+    build_cmd?: string;
+    start_cmd?: string;
 }
 export interface EnvVariable {
   id: number

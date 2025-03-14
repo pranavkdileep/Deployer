@@ -16,6 +16,15 @@ import Envcard from '@/components/Envcard'
 import BuildOut from '@/components/BuildOut'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 
+//extra items
+interface nixDep{
+  pkgs?: string;
+  apts?: string;
+  install_cmd?: string;
+  build_cmd?: string;
+  start_cmd?: string;
+}
+
 export default function DeploymentSettings() {
   const { name } = useParams<{ name: string }>();
   const [activeTab, setActiveTab] = useState("github");
@@ -32,6 +41,7 @@ export default function DeploymentSettings() {
   const { toast } = useToast()
   const [maintab, setMainTab] = useState('general');
   const [isBuildoutOpen, setIsBuildoutOpen] = useState(false);
+  const [extrafornix , setExtraforNix] = useState<nixDep>({});
 
   const handleFileUpload = async () => {
     console.log("Uploading file");
@@ -77,28 +87,53 @@ export default function DeploymentSettings() {
 
   const handlesavesettings = () => {
     console.log("Saving settings");
-    const condfig : DeploymentMethod = {
-      name: name!,
-      sourcedir: sourceDir,
-      buildtype: deployMethod as 'docker' | 'nix',
-      dockerFile: dockerFile,
-      port: port
-    }
-    console.log(condfig);
-    saveDeploymentSettings(condfig,(success) =>{
-      if(success){
-        toast({
-          title: 'Success',
-          description: 'Settings saved successfully'
-        });
-      }else{
-        toast({
-          title: 'Failed',
-          description: 'Settings save failed',
-          variant: 'destructive'
-        }); 
+    if(deployMethod === 'docker'){
+      const condfig : DeploymentMethod = {
+        name: name!,
+        sourcedir: sourceDir,
+        buildtype: deployMethod as 'docker' | 'nix',
+        dockerFile: dockerFile,
+        port: port
       }
-    });
+      console.log(condfig);
+      saveDeploymentSettings(condfig,(success) =>{
+        if(success){
+          toast({
+            title: 'Success',
+            description: 'Settings saved successfully'
+          });
+        }else{
+          toast({
+            title: 'Failed',
+            description: 'Settings save failed',
+            variant: 'destructive'
+          }); 
+        }
+      });
+    }else{
+      const config : DeploymentMethod ={
+        name:name!,
+        sourcedir: sourceDir,
+        buildtype:'nix',
+        port: port,
+        ...extrafornix
+      };
+      console.log(config);
+      saveDeploymentSettings(config,(success) =>{
+        if(success){
+          toast({
+            title: 'Success',
+            description: 'Settings saved successfully'
+          });
+        }else{
+          toast({
+            title: 'Failed',
+            description: 'Settings save failed',
+            variant: 'destructive'
+          }); 
+        }
+      });
+    }
   }
 
   const handleDeploy = () => {
@@ -268,20 +303,30 @@ function generalTab(){
                 {deployMethod === 'nix' && (
                   <div className="space-y-4 mt-4">
                     <div>
+                      <label htmlFor="port" className="text-sm font-medium mb-2 block">Port</label>
+                      <Input id="port" placeholder="Enter port" onChange={(e)=>{setPort(parseInt(e.target.value))}} />
+                      <label htmlFor="sourceDir" className="text-sm font-medium mb-2 block">Source Directory</label>
+                      <Input id="sourceDir" placeholder="Enter source directory" onChange={(e)=>{setSourceDir(e.target.value)}} />
+                    </div>
+                    <div>
+                      <label htmlFor="installCommand" className="text-sm font-medium mb-2 block">Install Command</label>
+                      <Input id="installCommand" placeholder="Enter build command" onChange={(e)=>{extrafornix.install_cmd=e.target.value}} />
+                    </div>
+                    <div>
                       <label htmlFor="buildCommand" className="text-sm font-medium mb-2 block">Build Command</label>
-                      <Input id="buildCommand" placeholder="Enter build command" />
+                      <Input id="buildCommand" placeholder="Enter build command" onChange={(e)=>{extrafornix.build_cmd=e.target.value}} />
                     </div>
                     <div>
                       <label htmlFor="startCommand" className="text-sm font-medium mb-2 block">Start Command</label>
-                      <Input id="startCommand" placeholder="Enter start command" />
+                      <Input id="startCommand" placeholder="Enter start command" onChange={(e)=>{extrafornix.start_cmd=e.target.value}} />
                     </div>
                     <div>
                       <label htmlFor="nixPackages" className="text-sm font-medium mb-2 block">Nix Packages</label>
-                      <Input id="nixPackages" placeholder="Enter Nix packages" />
+                      <Input id="nixPackages" placeholder="Enter Nix packages" onChange={(e)=>{extrafornix.pkgs=e.target.value}} />
                     </div>
                     <div>
                       <label htmlFor="aptPackages" className="text-sm font-medium mb-2 block">APT Packages</label>
-                      <Input id="aptPackages" placeholder="Enter APT packages" />
+                      <Input id="aptPackages" placeholder="Enter APT packages" onChange={(e)=>{extrafornix.apts=e.target.value}} />
                     </div>
                   </div>
                 )}

@@ -59,6 +59,12 @@ export async function setDeploymentmethod(config: DeploymentMethod) {
         console.log(query);
         const result = await connection.query(query);
         console.log(result.rows);
+    }else if (buildtype === 'nix'){
+        const {port,pkgs,apts,install_cmd,build_cmd,start_cmd} = config;
+        const query = `UPDATE projects SET deployType = 'nix', pkgs='${pkgs}', apts='${apts}', install_cmd='${install_cmd}', build_cmd='${build_cmd}',start_cmd='${start_cmd}', sourcePath = '${sourcedir}', port=${port} WHERE name = '${name}' RETURNING *`;
+        console.log(query);
+        const result = await connection.query(query);
+        console.log(result.rows);
     }
 }
 

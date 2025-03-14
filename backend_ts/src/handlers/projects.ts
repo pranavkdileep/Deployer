@@ -6,6 +6,7 @@ import { setDeploymentmethod, setEnvFile, setupSourceFromGit, setupSourceFromLoc
 import fileUpload from "express-fileupload";
 import { Responsetemplate } from "../dtos/common";
 import fs, { stat } from 'fs';
+import { Buildnixpacks } from "../managers/nixpacks";
 
 
 export const getProjectslist = async (req: Request, res: Response) => {
@@ -178,12 +179,14 @@ export const deployHandler = async (req: Request<{}, {}, { name: string }>, res:
                         buildconfig = {
                             name: name,
                             dockerfile: dockerfile,
+                            buildtype:'docker',
                             port: port
                         }
                     } else {
                         buildconfig = {
                             name: name,
                             dockerfile: dockerfile,
+                            buildtype:'docker',
                             dir: sourcepath,
                             port: port
                         }
@@ -191,6 +194,35 @@ export const deployHandler = async (req: Request<{}, {}, { name: string }>, res:
                         await buildImage(buildconfig);
                     }
 
+                }else if(project.deploytype === 'nix'){
+                    const {name,sourcepath,port,pkgs,apts,install_cmd,build_cmd,start_cmd} = project;
+                    let buildconfig: Build;
+                    if(sourcepath === null){
+                        buildconfig = {
+                            name:name,
+                            port:port,
+                            buildtype:'nix',
+                            pkgs:pkgs,
+                            apts:apts,
+                            install_cmd:install_cmd,
+                            build_cmd:build_cmd,
+                            start_cmd:start_cmd,
+                        }
+                    }else{
+                        buildconfig = {
+                            name:name,
+                            port:port,
+                            buildtype:'nix',
+                            pkgs:pkgs,
+                            apts:apts,
+                            install_cmd:install_cmd,
+                            dir:sourcepath,
+                            build_cmd:build_cmd,
+                            start_cmd:start_cmd,
+                        }
+                    }
+                    res.status(200).json({ message: 'Deployment Started' });
+                    await Buildnixpacks(buildconfig)
                 } else {
                     res.status(400).json({ message: 'Source Not Setup' });
                 }

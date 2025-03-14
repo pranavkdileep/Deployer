@@ -1,6 +1,5 @@
 import { Build,envfilejson } from '../dtos/build';
 import fs from 'fs';
-const { spawnSync } = require('child_process');
 import { connection } from "../lib/db";
 import Dockerode from 'dockerode';
 import { spawn } from 'child_process';
@@ -43,6 +42,7 @@ export async function buildImage(buildconfig: Build) {
             runContainer({
                 name: name,
                 port: port,
+                buildtype: 'docker',
                 dockerfile: dockerfile,
             });
         } else {
@@ -126,6 +126,9 @@ export async function deleteContainer(name: string) {
     //delete and remove clear the container
     try {
         console.log('Deleting Container ' + name);
+        const query = `DELETE FROM projects WHERE name = '${name}' RETURNING *`;
+        const resuilt = await connection.query(query);
+        console.log(resuilt.rows);
         const listcontainers = await docker.listContainers({ filters: { name: [name] } });
         console.log(listcontainers);
         const container = docker.getContainer(listcontainers[0].Id);
@@ -134,9 +137,6 @@ export async function deleteContainer(name: string) {
         //delete image
         const images = await docker.listImages({ filters: { reference: [name] } });
         await docker.getImage(images[0].Id).remove();
-        const query = `DELETE FROM projects WHERE name = '${name}' RETURNING *`;
-        const resuilt = await connection.query(query);
-        console.log(resuilt.rows);
         //delete project folder
         deleteProject(name);
     } catch (err) {

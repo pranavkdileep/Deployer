@@ -6,9 +6,16 @@ export interface envfilejson {
 
 export interface Build {
     name: string;
-    dockerfile: string;
+    dockerfile?: string;
     dir?:string;
     port: number;
+    buildtype: 'docker' | 'nix'; 
+    pkgs?: string;
+    apts?: string;
+    install_cmd?: string; 
+    build_cmd?: string; 
+    start_cmd?: string; 
+
 }
 
 export interface SetupSource {
@@ -25,4 +32,9 @@ export interface DeploymentMethod {
     buildtype: 'docker' | 'nix';
     dockerFile?: string;
     port?: number;
+    pkgs?: string[];
+    apts?: string[];
+    install_cmd?: string;
+    build_cmd?: string;
+    start_cmd?: string;
 }
