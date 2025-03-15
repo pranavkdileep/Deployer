@@ -17,7 +17,7 @@ export async function buildImage(buildconfig: Build) {
     console.log(deploymentid);
     const path = `../projects/${name}/${dir ? dir : ''}`;
     const dockerfilePath = path + dockerfile;
-    const buildout = `${path}buildout.txt`;
+    const buildout = `../projects/${name}/buildout.txt`;
     if (fs.existsSync(buildout)) {
         fs.writeFileSync(buildout, '');
     }

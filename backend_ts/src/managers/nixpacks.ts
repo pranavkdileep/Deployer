@@ -11,7 +11,7 @@ export const Buildnixpacks = async (config:Build) => {
         const deploymentid = createdeployment.rows[0].id;
         await checknixInstalled();
         const path = `../projects/${name}/${dir ? dir : ''}`;
-        const buildout = `${path}buildout.txt`;
+        const buildout = `../projects/${name}/buildout.txt`;
         if (fs.existsSync(buildout)) {
             fs.writeFileSync(buildout, '');
         }
