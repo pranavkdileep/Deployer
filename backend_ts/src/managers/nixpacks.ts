@@ -61,7 +61,7 @@ export const Buildnixpacks = async (config:Build) => {
                     console.log(resuilt.rows);
                     await connection.query(`UPDATE deployments SET status = 'failed' WHERE id = '${deploymentid}'`);
                 }
-                const buildouts = fs.readFileSync(`${path}buildout.txt`, 'utf-8');
+                const buildouts = fs.readFileSync(`../projects/${name}/buildout.txt`, 'utf-8');
                 await connection.query('UPDATE deployments SET log = $1 WHERE id = $2', [buildouts, deploymentid]);
             });
 
