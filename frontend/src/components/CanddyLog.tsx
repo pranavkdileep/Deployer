@@ -14,6 +14,7 @@ function CanddyLog({name}: {name: string}) {
 
     useEffect(() => {
         candyOutgen()
+        console.log(name)
     }, [])
 
     useEffect(() => {
