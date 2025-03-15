@@ -1,13 +1,16 @@
 import fs from 'fs';
 import { exec,execSync } from 'child_process';
+import { query, wellknown } from 'dns-query'
+import dotenv from 'dotenv';
+dotenv.config();
+
+const public_ip = process.env.PUBLIC_IP || '';
 
 export interface domainconfig {
     name: string;
     domain: string;
     port: number;
     ssl: boolean;
-    customSSL: boolean;
-    redirectHttps: boolean;
 }
 
 function installCertbot(): void {
@@ -38,59 +41,97 @@ function restartNginx(): void {
 
 function generateNginxConfig(domain: domainconfig) {
     let config;
+    if (!fs.existsSync('/etc/nginx/sites-available')) {
+        fs.mkdirSync('/etc/nginx/sites-available');
+    }
+
     if (domain.ssl) {
-        if (!domain.customSSL) {
-            config = `server {
+        config = `
+server {
+    listen 80;
+    server_name ${domain.domain};
+    return 301 https://${domain.domain}$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name ${domain.domain};
+
+    ssl_certificate /etc/letsencrypt/live/${domain.domain}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${domain.domain}/privkey.pem;
+
+    location / {
+        proxy_pass http://localhost:${domain.port};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}`;
+        generateSSLCertificate(domain.domain);
+    } else {
+        config = `
+server {
     listen 80;
     server_name ${domain.domain};
 
     location / {
         proxy_pass http://localhost:${domain.port};
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
-}`
-        } else {
-            // Custom SSL
-        }
+}`;
     }
-    else {
-        // No SSL
+
+    fs.writeFileSync(`/etc/nginx/sites-available/${domain.name}`, config);
+    if (!fs.existsSync(`/etc/nginx/sites-enabled/${domain.name}`)) {
+        fs.symlinkSync(`/etc/nginx/sites-available/${domain.name}`, `/etc/nginx/sites-enabled/${domain.name}`);
     }
+
     return config;
 }
 
+async function checkDomainARecord(domain:string){
+    let endpoints = await wellknown.endpoints()
+    const { answers, rcode } = await query({
+        question:{
+            type:'A',
+            name:domain
+        }
+    },{endpoints: endpoints});
+    if(rcode === 'NOERROR'){
+        console.log(answers);
+        if(answers && answers[0].data === public_ip){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }else{
+        console.log(rcode);
+        return false;
+    }
+}
+installCertbot();
+
 export async function setupDomain(domain: domainconfig) {
-    // generate nginx config
-    let nginxConfig = generateNginxConfig(domain);
-    // write nginx config
-    const filepath = `/etc/nginx/sites-available/${domain.name}`
-    if(fs.existsSync(filepath)){
-        //delete the file
-        fs.unlinkSync(filepath);
-    }
-    fs.writeFileSync(filepath, nginxConfig!);
-
-    // restart nginx
-    exec('sudo systemctl restart nginx');
-    console.log('Domain Setup Complete');
-    if (!domain.customSSL) {
-        installCertbot();
-        generateSSLCertificate(domain.domain);
+    if(await checkDomainARecord(domain.domain)){
+        console.log("Domain A record exists");
+        generateNginxConfig(domain);
         restartNginx();
+    }else{
+        console.log("Domain A record does not exist");
     }
-
 }
 
-// demo usage
-setupDomain({
-    name: 'test',
-    domain: 'testdigi.pkd.in.net',
-    port: 8000,
-    ssl: true,
-    customSSL: false,
-    redirectHttps: false
-})
+console.log(public_ip);
+let testconfig : domainconfig ={
+    name:"testproject",
+    domain:"testdigi.pkd.in.net",
+    port:8000,
+    ssl:true
+}
+
+setupDomain(testconfig);

@@ -93,6 +93,8 @@ setupPostgres(){
     read password
     echo "Enter JWT Securty Key:"
     read jwt
+    echo "Enter Server Public IP:"
+    read pubip
     cat <<EOL > deployer.service
     [Unit]
     Description=Node.js Application
@@ -121,6 +123,7 @@ setupPostgres(){
     Environment=PGSQL_PORT=5432
     Environment=PGSQL_DATABASE=deployer
     Environment=PGSQL_POOL_MODE=transaction
+    Environment=PUBLIC_IP=$pubip
 
     Restart=always
     RestartSec=10
