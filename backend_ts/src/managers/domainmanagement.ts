@@ -28,7 +28,7 @@ async function setupCanddy(config: domainconfig){
     let https = ssl ? 'https' : 'http';
     try{
         let caddyfile = fs.readFileSync('/etc/caddy/Caddyfile').toString();
-        let newConfig = `${domain} {
+        let newConfig = `\n ${domain} {
             reverse_proxy ${public_ip}:${port}
         }`;
         caddyfile += newConfig;
