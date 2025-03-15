@@ -32,6 +32,8 @@ installDockerDebian() {
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/deb.deb.txt' | sudo tee -a /etc/apt/sources.list.d/caddy-stable.list
     sudo apt update
     sudo apt install caddy -y
+    sudo rm -f /etc/caddy/Caddyfile && echo -e "{\n    admin localhost:2019\n}" | sudo tee /etc/caddy/Caddyfile > /dev/null
+    sudo systemctl restart caddy
 
 }
 installDockerCentos() {

@@ -7,6 +7,7 @@ import fileUpload from "express-fileupload";
 import { Responsetemplate } from "../dtos/common";
 import fs, { stat } from 'fs';
 import { Buildnixpacks } from "../managers/nixpacks";
+import { setupDomain } from "../managers/domainmanagement";
 
 
 export const getProjectslist = async (req: Request, res: Response) => {
@@ -320,4 +321,54 @@ export const logStreem = async (name: string, streemlog : (log:string) => void) 
     streamLogs(name,(log:string)=>{
         streemlog(log);
     });
+}
+
+export const getDomainHandler = async (req: Request<{}, {}, { name: string }>, res: Response) => {
+    const { name } = req.body;
+    if (!name) {
+        res.status(400).json({ message: 'Invalid Request!' });
+    }
+    else {
+        const query = `SELECT * FROM projects WHERE name = '${name}'`;
+        const result = await connection.query(query);
+        if (result.rowCount === 0) {
+            res.status(404).json({ message: 'Project Not Found' });
+        }
+        else {
+            const project = result.rows[0];
+            res.status(200).json({ domain: project.open_domain, ssl: project.ishttps });
+        }
+    }
+}
+
+export const DomainSetupHandler = async (req: Request<{}, {}, { name: string, domain: string, ssl: boolean }>, res: Response) => {
+    const { name, domain, ssl } = req.body;
+    if (!name || !domain || !ssl) {
+        res.status(400).json({ message: 'Invalid Request!' });
+    }
+    else {
+        const query = `SELECT * FROM projects WHERE name = '${name}'`;
+        const result = await connection.query(query);
+        if (result.rowCount === 0) {
+            res.status(404).json({ message: 'Project Not Found' });
+        }
+        else {
+            const project = result.rows[0];
+            const updatequery = `UPDATE projects SET open_domain = '${domain}', ishttps = ${ssl} WHERE name = '${name}' RETURNING *`;
+            const updateresult = await connection.query(updatequery);
+            const port = project.hostport;
+            console.log(updateresult);
+            try{
+                setupDomain({
+                    name: name,
+                    domain: domain,
+                    ssl: ssl,
+                    port: port
+                })
+                res.status(200).json({ message: 'Domain Setup Started' });
+            }catch(err){
+                res.status(500).json({ message: 'Error Setting up Domain' });
+            }
+        }
+    }
 }

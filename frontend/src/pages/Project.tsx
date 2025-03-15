@@ -15,6 +15,7 @@ import { AutoScrollingLogView } from '@/components/AutoScrollingLogView'
 import Envcard from '@/components/Envcard'
 import BuildOut from '@/components/BuildOut'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import DomainCard from '@/components/domain-card'
 
 //extra items
 interface nixDep{
@@ -166,7 +167,7 @@ function generalTab(){
                 {buildoutcard()}
                 
               </DialogContent>
-            </Dialog>
+    </Dialog>
     <Card>
         <CardHeader>
           <CardTitle>Deploy Settings</CardTitle>
@@ -372,6 +373,14 @@ function buildoutcard(){
   )
 }
 
+function domainTab(){
+  return (
+    <>
+    <DomainCard name={name!}/>
+    </>
+  )
+}
+
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -393,6 +402,7 @@ function buildoutcard(){
       {maintab === 'deployments' && deploymentTab()}
       {maintab === 'logs' && <AutoScrollingLogView name={name!}/>}
       {maintab === 'environment' && envcardfunctions()}
+      {maintab === 'domains' && domainTab()}
     </div>
   )
 }

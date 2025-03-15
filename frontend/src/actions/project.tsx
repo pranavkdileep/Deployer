@@ -362,3 +362,39 @@ export const buildoutstreem = async (name:string, buildout : (log:string)=>void)
         console.log(e);
     }
 }
+
+export const getDomainAction = async (name:string) =>{
+    let data = JSON.stringify({
+        "name": name
+    });
+    try {
+        const response = await axios.post('/api/projects/getDomain',data,{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Cookie.get('token')}`
+            }
+        });
+        return response.data;
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+export const saveDomain = async (name:string,domain:string,ssl:boolean) =>{
+    let data = JSON.stringify({
+        "name": name,
+        "domain": domain,
+        "ssl": ssl
+    });
+    try {
+        const response = await axios.post('/api/projects/setupDomain',data,{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Cookie.get('token')}`
+            }
+        });
+        return response.data;
+    } catch (e) {
+        console.log(e);
+    }
+}

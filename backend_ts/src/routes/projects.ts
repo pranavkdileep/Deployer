@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { jwtMiddleware } from "../utils/middleware";
-import {createProjectHandler, buildImageHandler,restartContainerHandler, getProjectDetails, getProjectslist, startContainerHandler, stopContainerHandler, setupProjectSourceHandeler, uploadZipHandler, setDeploymentmethodHandler, deployHandler, getDeployments, logStreem, setEnvFileHandler, getEnvFileHandler, streamBuildoutHandler, deleteContainerHandler } from "../handlers/projects";
+import {createProjectHandler, buildImageHandler,restartContainerHandler, getProjectDetails, getProjectslist, startContainerHandler, stopContainerHandler, setupProjectSourceHandeler, uploadZipHandler, setDeploymentmethodHandler, deployHandler, getDeployments, logStreem, setEnvFileHandler, getEnvFileHandler, streamBuildoutHandler, deleteContainerHandler, getDomainHandler, DomainSetupHandler } from "../handlers/projects";
 import { RawData, Server } from "ws";
 import { parse } from "url";
 
@@ -26,6 +26,8 @@ router.post("/getDeployments",jwtMiddleware,getDeployments);
 router.post("/setenv",jwtMiddleware,setEnvFileHandler);
 router.post("/getenv",jwtMiddleware,getEnvFileHandler);
 router.post("/steambuildout",jwtMiddleware,streamBuildoutHandler);
+router.post("/getDomain",jwtMiddleware,getDomainHandler);
+router.post("/setupDomain",jwtMiddleware,DomainSetupHandler);
 
 export const logWebsoket =  (wss : Server) => {
     wss.on('connection', function connection(ws,req) {
