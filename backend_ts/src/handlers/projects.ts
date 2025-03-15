@@ -8,6 +8,8 @@ import { Responsetemplate } from "../dtos/common";
 import fs, { stat } from 'fs';
 import { Buildnixpacks } from "../managers/nixpacks";
 import { setupDomain } from "../managers/domainmanagement";
+import dotenv from 'dotenv';
+dotenv.config();
 
 
 export const getProjectslist = async (req: Request, res: Response) => {
@@ -336,7 +338,14 @@ export const getDomainHandler = async (req: Request<{}, {}, { name: string }>, r
         }
         else {
             const project = result.rows[0];
-            res.status(200).json({ domain: project.open_domain, ssl: project.ishttps });
+            if(project.open_domain === null || project.open_domain === ''){
+                let domain = `${process.env.PUBLIC_IP}:${project.hostport}`;
+                res.status(200).json({ domain: domain, ssl: false });
+            }
+            else{
+                let domain = project.open_domain;
+                res.status(200).json({ domain: domain, ssl: project.ishttps });
+            }
         }
     }
 }
