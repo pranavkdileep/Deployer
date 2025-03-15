@@ -302,7 +302,7 @@ function generalTab(){
                   </div>
                 )}
                 {deployMethod === 'nix' && (
-                  <div className="space-y-4 mt-4">
+                  <div className="space-y-4 mt-4 grid grid-cols-4 gap-4">
                     <div>
                       <label htmlFor="port" className="text-sm font-medium mb-2 block">Port</label>
                       <Input id="port" placeholder="Enter port" onChange={(e)=>{setPort(parseInt(e.target.value))}} />
