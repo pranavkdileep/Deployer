@@ -29,7 +29,7 @@ async function setupCanddy(config: domainconfig){
     try{
         const payload = {
             "apps": {
-                'https': {
+                'http': {
                     "servers": {
                         name: {
                             "listen": [":80"],
