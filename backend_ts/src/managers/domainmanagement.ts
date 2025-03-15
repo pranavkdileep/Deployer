@@ -27,25 +27,13 @@ async function setupCanddy(config: domainconfig){
     let {name,domain,port,ssl} = config;
     let https = ssl ? 'https' : 'http';
     try{
-        const payload = {
-            "apps": {
-                'http': {
-                    "servers": {
-                        name: {
-                            "listen": [":80"],
-                            "routes": [
-                                {
-                                    "match": [{ "host": [domain] }],
-                                    "handle": [{ "handler": "reverse_proxy", "upstreams": [{ "dial": `localhost:${port}` }] }]
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        };
-        const response = await axios.post("http://localhost:2019/load", payload);
-        console.log("Domain added successfully:", response.data);
+        let caddyfile = fs.readFileSync('/etc/caddy/Caddyfile').toString();
+        let newConfig = `${domain} {
+            reverse_proxy ${public_ip}:${port}
+        }`;
+        caddyfile += newConfig;
+        fs.writeFileSync('/etc/caddy/Caddyfile',caddyfile);
+        restartCanddy();
     }catch(e){
         console.error(e);
     }
