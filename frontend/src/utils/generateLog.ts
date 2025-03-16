@@ -22,3 +22,15 @@ export async function generateLog(name:string,logstreamer:(log:string)=>void) {
   }
 }
 
+export async function getTerminalWs(name:string){
+  const token = await Cookie.get('token');
+  const hostname = window.location.hostname;
+  const port = 3000;
+  let url;
+  if (port) {
+    url = `${hostname}:${port}`;
+  } else {
+    url = hostname;
+  }
+  return new WebSocket(`ws://${url}/terminal?token=${token}&projectName=${name}`);
+}

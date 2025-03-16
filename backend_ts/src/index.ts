@@ -7,6 +7,8 @@ import { jwtMiddleware, verifyClient } from './utils/middleware'
 import fileUpload from 'express-fileupload'
 import http from 'http';
 import { WebSocketServer } from 'ws';
+import { terminalwss } from './handlers/terminalWss'
+
 
 dotenv.config()
 
@@ -32,8 +34,15 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 
 
-const wss = new WebSocketServer({ server,path:'/logs',verifyClient:verifyClient });
+const wss = new WebSocketServer({ noServer: true ,verifyClient:verifyClient});
 logWebsoket(wss);
+terminalwss(wss);
+
+server.on('upgrade', (req, socket, head) => {
+  wss.handleUpgrade(req, socket, head, (ws) => {
+    wss.emit('connection', ws, req);
+  });
+});
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);

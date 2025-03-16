@@ -16,6 +16,7 @@ import Envcard from '@/components/Envcard'
 import BuildOut from '@/components/BuildOut'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import DomainCard from '@/components/domain-card'
+import TerminalCard from '@/components/Terminal'
 
 //extra items
 interface nixDep{
@@ -42,6 +43,7 @@ export default function DeploymentSettings() {
   const { toast } = useToast()
   const [maintab, setMainTab] = useState('general');
   const [isBuildoutOpen, setIsBuildoutOpen] = useState(false);
+  const [isterminalOpen, setIsTerminalOpen] = useState(false);
   const [extrafornix , setExtraforNix] = useState<nixDep>({});
 
   const handleFileUpload = async () => {
@@ -168,6 +170,13 @@ function generalTab(){
                 
               </DialogContent>
     </Dialog>
+    <Dialog open={isterminalOpen} onOpenChange={setIsTerminalOpen}>
+              
+              <DialogContent className='p-0 w-full max-w-2xl mx-auto '>
+                <TerminalCard name={name!}/>
+                
+              </DialogContent>
+    </Dialog>
     <Card>
         <CardHeader>
           <CardTitle>Deploy Settings</CardTitle>
@@ -189,8 +198,8 @@ function generalTab(){
               <StopCircle className="mr-2 h-4 w-4" />
               Stop
             </Button>
-            <Button variant="outline" className="active:scale-95 transition-transform hover:opacity-90">
-              <Terminal className="mr-2 h-4 w-4" />
+            <Button variant="outline" className="active:scale-95 transition-transform hover:opacity-90" onClick={()=>setIsTerminalOpen(true)}>
+              <Terminal className="mr-2 h-4 w-4"  />
               Open Terminal
             </Button>
           </div>
