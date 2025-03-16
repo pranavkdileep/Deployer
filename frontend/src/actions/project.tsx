@@ -398,3 +398,17 @@ export const saveDomain = async (name:string,domain:string,ssl:boolean) =>{
         console.log(e);
     }
 }
+
+export const getCanndyOut = async () => {
+    try {
+        const response = await axios.get('/api/projects/getCandyOut',{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Cookie.get('token')}`
+            }
+        });
+        return response.data;
+    } catch (e) {
+        console.log(e);
+    }
+}

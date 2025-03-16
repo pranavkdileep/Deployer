@@ -75,5 +75,14 @@ export async function setupDomain(domain: domainconfig) {
     }
 }
 
+export async function getCanddylog(){
+    try{
+        let command = 'sudo systemctl status caddy';
+        let result = execSync(command).toString();
+        return result;
+    }catch(e){
+        console.error(e);
+    }
+}
 
 

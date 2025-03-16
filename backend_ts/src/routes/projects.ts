@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { jwtMiddleware } from "../utils/middleware";
-import {createProjectHandler, buildImageHandler,restartContainerHandler, getProjectDetails, getProjectslist, startContainerHandler, stopContainerHandler, setupProjectSourceHandeler, uploadZipHandler, setDeploymentmethodHandler, deployHandler, getDeployments, logStreem, setEnvFileHandler, getEnvFileHandler, streamBuildoutHandler, deleteContainerHandler, getDomainHandler, DomainSetupHandler } from "../handlers/projects";
+import {createProjectHandler, buildImageHandler,restartContainerHandler, getProjectDetails, getProjectslist, startContainerHandler, stopContainerHandler, setupProjectSourceHandeler, uploadZipHandler, setDeploymentmethodHandler, deployHandler, getDeployments, logStreem, setEnvFileHandler, getEnvFileHandler, streamBuildoutHandler, deleteContainerHandler, getDomainHandler, DomainSetupHandler, getCanddyOutHandler } from "../handlers/projects";
 import { RawData, WebSocket, WebSocketServer } from "ws";
 import { parse } from "url";
 
@@ -28,6 +28,7 @@ router.post("/getenv",jwtMiddleware,getEnvFileHandler);
 router.post("/steambuildout",jwtMiddleware,streamBuildoutHandler);
 router.post("/getDomain",jwtMiddleware,getDomainHandler);
 router.post("/setupDomain",jwtMiddleware,DomainSetupHandler);
+router.get("/getCandyOut",jwtMiddleware,getCanddyOutHandler);
 
 export const logWebsoket = (server: WebSocketServer) => {
   server.on('connection', (ws: WebSocket, req) => {

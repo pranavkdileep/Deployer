@@ -7,7 +7,7 @@ import fileUpload from "express-fileupload";
 import { Responsetemplate } from "../dtos/common";
 import fs, { stat } from 'fs';
 import { Buildnixpacks } from "../managers/nixpacks";
-import { setupDomain } from "../managers/domainmanagement";
+import { getCanddylog, setupDomain } from "../managers/domainmanagement";
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -379,5 +379,14 @@ export const DomainSetupHandler = async (req: Request<{}, {}, { name: string, do
                 res.status(500).json({ message: 'Error Setting up Domain' });
             }
         }
+    }
+}
+
+export const getCanddyOutHandler = async (req: Request<{}, {}, {}>, res: Response) => {
+    try{
+        let result = await getCanddylog();
+        res.status(200).json({message:result});
+    }catch(err){
+        res.status(500).json({message:'Error Getting CaddyLog'});
     }
 }

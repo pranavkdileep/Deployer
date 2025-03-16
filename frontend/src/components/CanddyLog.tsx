@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Switch } from "./ui/switch"
 import { Label } from "./ui/label"
+import { getCanndyOut } from "@/actions/project"
 
 function CanddyLog({name}: {name: string}) {
     const [canddylog, setCandylog] = useState<string>("")
@@ -9,7 +10,8 @@ function CanddyLog({name}: {name: string}) {
     const [autoScroll, setAutoScroll] = useState(true)
   
     const candyOutgen = async () => {
-        setCandylog("Building...")
+        const res = await getCanndyOut()
+        setCandylog(res.message)
     }
 
     useEffect(() => {
