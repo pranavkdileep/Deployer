@@ -34,6 +34,7 @@ installDockerDebian() {
     sudo apt install caddy -y
     sudo rm -f /etc/caddy/Caddyfile && echo -e "{\n    admin localhost:2019\n}" | sudo tee /etc/caddy/Caddyfile > /dev/null
     sudo systemctl restart caddy
+    sudo apt install build-essential -y
 
 }
 installDockerCentos() {
