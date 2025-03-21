@@ -96,6 +96,9 @@ export async function runContainer(runconfig: Build) {
                             HostPort: hostport.toString()
                         }
                     ]
+                },
+                RestartPolicy:{
+                    Name: 'always'
                 }
             }
         });
