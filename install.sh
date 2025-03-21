@@ -82,7 +82,7 @@ setupPostgres(){
     #create volume
     docker volume create pgdata
     #run container
-    docker run --name pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=docker_user -d -p 5432:5432 -v pgdata:/var/lib/postgresql/data postgres:latest
+    docker run --name pg --restart always -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=docker_user -d -p 5432:5432 -v pgdata:/var/lib/postgresql/data postgres:latest
     echo "Postgres setup"
     # create database
     docker start pg
