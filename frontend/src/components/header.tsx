@@ -1,4 +1,4 @@
-import { Bell, Menu, Settings, User } from 'lucide-react'
+import {  Menu, User } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import * as React from "react"
 

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
-import { Terminal, RefreshCw, StopCircle } from 'lucide-react'
+import { Terminal } from 'lucide-react'
 import { useState } from 'react'
 import { Label } from "@/components/ui/label"
 import { deployProject, saveDeploymentSettings, setupgit, uploadZip } from '@/actions/project'
