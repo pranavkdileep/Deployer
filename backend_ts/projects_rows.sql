@@ -18,7 +18,11 @@ CREATE TABLE projects (
     apts VARCHAR(100),
     install_cmd VARCHAR(100),
     build_cmd VARCHAR(100),
-    start_cmd VARCHAR(100)
+    start_cmd VARCHAR(100),
+    cpureservation INTEGER DEFAULT 0,
+    memoryreservation INTEGER DEFAULT 0,
+    cpulimit INTEGER DEFAULT 0,
+    memorylimit INTEGER DEFAULT 0
 );
 CREATE TABLE deployments (
     id SERIAL PRIMARY KEY, -- Automatically generates unique IDs

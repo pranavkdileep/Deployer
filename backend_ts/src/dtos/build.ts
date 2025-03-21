@@ -38,3 +38,10 @@ export interface DeploymentMethod {
     build_cmd?: string;
     start_cmd?: string;
 }
+
+export interface Resources {
+    cpureservation : number,
+    cpulimit : number,
+    memoryreservation : number,
+    memorylimit : number
+  }

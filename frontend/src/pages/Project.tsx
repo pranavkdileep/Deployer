@@ -17,6 +17,7 @@ import BuildOut from '@/components/BuildOut'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import DomainCard from '@/components/domain-card'
 import TerminalCard from '@/components/Terminal'
+import ResourcesCard from '@/components/resources-card'
 
 //extra items
 interface nixDep{
@@ -187,17 +188,7 @@ function generalTab(){
         <CardContent className="space-y-6">
           <div className="flex gap-2">
             <Button className="active:scale-95 transition-transform hover:opacity-90" onClick={handleDeploy}>Deploy</Button>
-            <Button variant="secondary" className="active:scale-95 transition-transform hover:opacity-90">
-              Autodeploy
-            </Button>
-            <Button variant="secondary" className="active:scale-95 transition-transform hover:opacity-90">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Rebuild
-            </Button>
-            <Button variant="destructive" className="active:scale-95 transition-transform hover:opacity-90">
-              <StopCircle className="mr-2 h-4 w-4" />
-              Stop
-            </Button>
+            
             <Button variant="outline" className="active:scale-95 transition-transform hover:opacity-90" onClick={()=>setIsTerminalOpen(true)}>
               <Terminal className="mr-2 h-4 w-4"  />
               Open Terminal
@@ -390,6 +381,14 @@ function domainTab(){
   )
 }
 
+function advancedTab(){
+  return (
+    <>
+    <ResourcesCard name={name!}/>
+    </>
+  )
+}
+
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -399,7 +398,7 @@ function domainTab(){
           <TabsList className="w-full justify-start" >
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="environment">Environment</TabsTrigger>
-            <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
+            {/* <TabsTrigger value="monitoring">Monitoring</TabsTrigger> */}
             <TabsTrigger value="logs">Logs</TabsTrigger>
             <TabsTrigger value="deployments">Deployments</TabsTrigger>
             <TabsTrigger value="domains">Domains</TabsTrigger>
@@ -412,6 +411,7 @@ function domainTab(){
       {maintab === 'logs' && <AutoScrollingLogView name={name!}/>}
       {maintab === 'environment' && envcardfunctions()}
       {maintab === 'domains' && domainTab()}
+      {maintab === 'advanced' && advancedTab()}
     </div>
   )
 }

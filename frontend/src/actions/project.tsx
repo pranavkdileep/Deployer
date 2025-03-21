@@ -3,6 +3,7 @@ import logout from "@/lib/logout";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import Cookie from "js-cookie";
 import { Buffer } from 'buffer';
+import { Resources } from "@/components/resources-card";
 
 export const stopProject = async (name: string) => {
     const token = Cookie.get('token');
@@ -410,5 +411,42 @@ export const getCanndyOut = async () => {
         return response.data;
     } catch (e) {
         console.log(e);
+    }
+}
+
+export const getResouces = async (name:string) =>{
+    let data = JSON.stringify({
+        "name": name
+    });
+    try {
+        const response = await axios.post('/api/projects/getResources',data,{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Cookie.get('token')}`
+            }
+        });
+        return response.data;
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+export const saveResources = async (name:string,resources:Resources) =>{
+    let data = JSON.stringify({
+        "name": name,
+        "resources": resources
+    });
+    try {
+        const response = await axios.post('/api/projects/setResources',data,{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Cookie.get('token')}`
+            }
+        });
+        return response.data;
+    } catch (e) {
+        return false;
+        console
+        .log(e);
     }
 }

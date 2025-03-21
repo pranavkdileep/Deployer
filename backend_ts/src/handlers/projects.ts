@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import { connection } from "../lib/db";
 import { buildImage, getContainerSates, startContainer, stopContainer, restartContainer, streamLogs, streamBuildout, deleteContainer } from "../managers/docker";
-import { Build, DeploymentMethod, envfilejson, SetupSource } from "../dtos/build";
+import { Build, DeploymentMethod, envfilejson, Resources, SetupSource } from "../dtos/build";
 import { setDeploymentmethod, setEnvFile, setupSourceFromGit, setupSourceFromLocal } from "../managers/source";
 import fileUpload from "express-fileupload";
 import { Responsetemplate } from "../dtos/common";
@@ -388,5 +388,39 @@ export const getCanddyOutHandler = async (req: Request<{}, {}, {}>, res: Respons
         res.status(200).json({message:result});
     }catch(err){
         res.status(500).json({message:'Error Getting CaddyLog'});
+    }
+}
+
+export const getResoucesHandler = async (req: Request<{}, {}, {name:string}>, res: Response) => {
+    const {name} = req.body;
+    if(!name){
+        res.status(400).json({message:'Invalid Request'});
+    }
+    else{
+        const query = `SELECT cpureservation, memoryreservation , cpulimit , memorylimit FROM projects WHERE name = '${name}'`;
+        const result = await connection.query(query);
+        if(result.rowCount === 0){
+            res.status(404).json({message:'No Resources Found'});
+        }
+        else{
+            res.status(200).json(result.rows[0]);
+        }
+    }
+}
+
+export const setResoucesHandler = async (req: Request<{}, {}, {name:string, resources : Resources}>, res: Response) => {
+    const {name, resources} = req.body;
+    if(!name || !resources){
+        res.status(400).json({message:'Invalid Request'});
+    }
+    else{
+        const query = `UPDATE projects SET cpureservation = ${resources.cpureservation}, memoryreservation = ${resources.memoryreservation}, cpulimit = ${resources.cpulimit}, memorylimit = ${resources.memorylimit} WHERE name = '${name}' RETURNING *`;
+        const result = await connection.query(query);
+        if(result.rowCount === 0){
+            res.status(404).json({message:'No Resources Found'});
+        }
+        else{
+            res.status(200).json({message:'Resources Set'});
+        }
     }
 }

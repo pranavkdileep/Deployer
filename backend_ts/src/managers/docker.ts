@@ -64,6 +64,11 @@ export async function runContainer(runconfig: Build) {
     //ToDo: get hostport from db
     const hostportrq = await connection.query(`SELECT hostport FROM projects WHERE name = '${name}'`);
     const hostport = hostportrq.rows[0].hostport;
+    const getResouces = await connection.query(`SELECT cpureservation, memoryreservation , cpulimit , memorylimit FROM projects WHERE name = '${name}'`);
+    const cpuReservation = getResouces.rows[0].cpureservation;
+    const memoryReservation = getResouces.rows[0].memoryreservation;
+    const cpuLimit = getResouces.rows[0].cpulimit;
+    const memoryLimit = getResouces.rows[0].memorylimit;
     let envstring:string[] = [];
     if (fs.existsSync(`${path}envfile.json`)) {
         const envfile = fs.readFileSync(`${path}envfile.json`, 'utf-8');
@@ -99,7 +104,11 @@ export async function runContainer(runconfig: Build) {
                 },
                 RestartPolicy:{
                     Name: 'always'
-                }
+                },
+                CpuShares: cpuReservation > 0 ? cpuReservation * 1024 : 1024, // Limit CPU usage (relative weight)
+                NanoCpus: cpuLimit > 0 ? cpuLimit * 1e9 : 0, // Limit CPU usage (in nanoseconds)
+                Memory: memoryReservation > 0 ? memoryReservation * 1024 * 1024 : 0, // Limit RAM usage (in bytes)
+                MemorySwap: memoryLimit > 0 ? memoryLimit * 1024 * 1024 : 0 // Limit swap usage (in bytes)
             }
         });
         console.log(container.id);
