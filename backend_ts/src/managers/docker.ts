@@ -16,6 +16,7 @@ export async function buildImage(buildconfig: Build) {
     const deploymentid = createdeployment.rows[0].id;
     console.log(deploymentid);
     const path = `../projects/${name}/${dir ? dir : ''}`;
+    const buildoutpath = `../projects/${name}/buildout.txt`;
     const dockerfilePath = path + dockerfile;
     const buildout = `../projects/${name}/buildout.txt`;
     if (fs.existsSync(buildout)) {
@@ -52,7 +53,7 @@ export async function buildImage(buildconfig: Build) {
             console.log(resuilt.rows);
             await connection.query(`UPDATE deployments SET status = 'failed' WHERE id = '${deploymentid}'`);
         }
-        const buildouts = fs.readFileSync(`${path}buildout.txt`, 'utf-8');
+        const buildouts = fs.readFileSync(buildoutpath, 'utf-8');
         await connection.query('UPDATE deployments SET log = $1 WHERE id = $2', [buildouts, deploymentid]);
     });
 }

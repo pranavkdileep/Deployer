@@ -258,6 +258,9 @@ function generalTab(){
                       </SelectTrigger>
                         <SelectContent>
                         <SelectItem value="main">main</SelectItem>
+                        <SelectItem value="master">master</SelectItem>
+                        <SelectItem value="staging">staging</SelectItem>
+                        <SelectItem value="production">production</SelectItem>
                         <SelectItem value="develop">develop</SelectItem>
                         </SelectContent>
                     </Select>
