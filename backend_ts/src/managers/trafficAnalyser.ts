@@ -148,7 +148,7 @@ function isDomain(inputUrl: string): boolean {
     } catch (error) {
         console.error('Invalid URL:', error);
     }
-    
+
     return false;
 }
 
@@ -174,19 +174,22 @@ async function processJson(data: string): Promise<void> {
             const userAgent = packet["http.user_agent"][0];
             const uri = packet["http.request.full_uri"][0];
             const uaInfo = extractUserAgentData(userAgent);
-            if(!isDomain(uri)) {
+            if (!isDomain(uri)) {
                 country = await ipToCountry(srcIp);
             }
-            else{
+            else {
                 country = 'Unknown';
                 srcIp = 'Https Protected';
             }
-            console.log(`[${time}] ${srcIp} (${country} ${dstPort}) -> ${uri} (${uaInfo.browser} ${uaInfo.version} on ${uaInfo.os} ${uaInfo.device})`);
+            //console.log(`[${time}] ${srcIp} (${country} ${dstPort}) -> ${uri} (${uaInfo.browser} ${uaInfo.version} on ${uaInfo.os} ${uaInfo.device})`);
             const postData = await connection.query("SELECT hostport FROM projects");
             const ports = postData.rows.map((row: { hostport: string; }) => row.hostport);
             const domainData = await connection.query("SELECT open_domain FROM projects");
             const domains = domainData.rows.map((row: { open_domain: string; }) => row.open_domain);
-            if(ports.includes(dstPort) || domains.includes(uri)){
+            // Convert to same type before comparison
+            const dstPortNum = Number(dstPort);
+            if (ports.some(p => Number(p) === dstPortNum) || domains.includes(uri)) {
+                console.log('Data is being inserted');
                 const insertQuery = `INSERT INTO traffic (srcip, country, timesta, useragent, browser, browserversion, os, device, fullurl) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
                 const values = [srcIp, country, time, userAgent, uaInfo.browser, uaInfo.version, uaInfo.os, uaInfo.device, uri];
                 await connection.query(insertQuery, values);
