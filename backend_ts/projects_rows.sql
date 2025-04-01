@@ -31,3 +31,16 @@ CREATE TABLE deployments (
     status VARCHAR(50),
     log TEXT
 );
+
+CREATE TABLE traffic (
+    id SERIAL PRIMARY KEY, -- Automatically generates unique IDs
+    srcip VARCHAR(255),
+    country VARCHAR(255),
+    timesta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    useragent TEXT,
+    browser TEXT,
+    browserversion TEXT,
+    os TEXT,
+    device TEXT,
+    fullurl TEXT
+);

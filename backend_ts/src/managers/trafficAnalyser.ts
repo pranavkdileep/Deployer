@@ -1,4 +1,13 @@
 import { spawn } from "child_process";
+import { connection } from "../lib/db";
+import { URL } from 'url';
+
+interface UserAgentInfo {
+    browser: string;
+    version: string;
+    os: string;
+    device: string;
+}
 
 console.log("Starting traffic analyzer...");
 let buffer = '';
@@ -110,7 +119,46 @@ function processBuffer(): void {
     }
 }
 
-function processJson(data: string): void {
+function extractUserAgentData(userAgent: string): UserAgentInfo {
+    const browserRegex = /(Chrome|Firefox|Safari|Opera|Edge|MSIE|Trident)/i;
+    const versionRegex = /(?:Chrome|Firefox|Safari|Opera|Edge|MSIE|Trident)\/?\s*(\d+\.\d+)/i;
+    const osRegex = /(Windows NT|Mac OS X|Android|Linux|iOS|iPhone|iPad)/i;
+    const deviceRegex = /(Mobile|Tablet|Desktop)/i;
+
+    const browserMatch = userAgent.match(browserRegex);
+    const versionMatch = userAgent.match(versionRegex);
+    const osMatch = userAgent.match(osRegex);
+    const deviceMatch = userAgent.match(deviceRegex);
+
+    return {
+        browser: browserMatch ? browserMatch[0] : "Unknown",
+        version: versionMatch ? versionMatch[1] : "Unknown",
+        os: osMatch ? osMatch[0] : "Unknown",
+        device: deviceMatch ? deviceMatch[0] : "Desktop", // Defaulting to Desktop
+    };
+}
+
+function isDomain(inputUrl: string): boolean {
+    try {
+        const parsedUrl = new URL(inputUrl);
+        const hostname = parsedUrl.hostname;
+        if (/[a-zA-Z]/.test(hostname)) {
+            return true;
+        }
+    } catch (error) {
+        console.error('Invalid URL:', error);
+    }
+    
+    return false;
+}
+
+async function ipToCountry(ip: string): Promise<string> {
+    const res = await fetch(`https://api.country.is/${ip}`);
+    const json = await res.json();
+    return json.country;
+}
+
+async function processJson(data: string): Promise<void> {
     try {
         const obj = JSON.parse(data);
         const packet = obj._source.layers;
@@ -119,14 +167,32 @@ function processJson(data: string): void {
             packet?.["frame.time"] &&
             packet?.["http.user_agent"] &&
             packet?.["http.request.full_uri"]) {
-            console.log(`Source IP: ${packet["ip.src"][0]}`);
-            console.log(`Destination Port: ${packet["tcp.dstport"][0]}`);
-            console.log(`Timestamp: ${packet["frame.time"][0]}`);  // Added [0] to match array format
-            console.log(`User Agent: ${packet["http.user_agent"][0]}`);  // Added [0] to match array format
-            console.log(`Full URI: ${packet["http.request.full_uri"][0]}`);  // Added [0] to match array format
-            console.log('-----------------------------------');
-        }
+            let srcIp = packet["ip.src"][0];
+            let country = 'Unknown';
+            const dstPort = packet["tcp.dstport"][0];
+            const time = packet["frame.time"][0];
+            const userAgent = packet["http.user_agent"][0];
+            const uri = packet["http.request.full_uri"][0];
+            const uaInfo = extractUserAgentData(userAgent);
+            if(!isDomain(uri)) {
+                country = await ipToCountry(srcIp);
+            }
+            else{
+                country = 'Unknown';
+                srcIp = 'Https Protected';
+            }
+            console.log(`[${time}] ${srcIp} (${country} ${dstPort}) -> ${uri} (${uaInfo.browser} ${uaInfo.version} on ${uaInfo.os} ${uaInfo.device})`);
+            const postData = await connection.query("SELECT hostport FROM projects");
+            const ports = postData.rows.map((row: { hostport: string; }) => row.hostport);
+            const domainData = await connection.query("SELECT open_domain FROM projects");
+            const domains = domainData.rows.map((row: { open_domain: string; }) => row.open_domain);
+            if(ports.includes(dstPort) || domains.includes(uri)){
+                const insertQuery = `INSERT INTO traffic (srcip, country, timesta, useragent, browser, browserversion, os, device, fullurl) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
+                const values = [srcIp, country, time, userAgent, uaInfo.browser, uaInfo.version, uaInfo.os, uaInfo.device, uri];
+                await connection.query(insertQuery, values);
+            }
 
+        }
     } catch (e) {
         //console.error('Error parsing JSON:', e);
     }
