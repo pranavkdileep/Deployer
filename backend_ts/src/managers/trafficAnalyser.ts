@@ -182,16 +182,31 @@ async function processJson(data: string): Promise<void> {
                 srcIp = 'Https Protected';
             }
             //console.log(`[${time}] ${srcIp} (${country} ${dstPort}) -> ${uri} (${uaInfo.browser} ${uaInfo.version} on ${uaInfo.os} ${uaInfo.device})`);
-            const postData = await connection.query("SELECT hostport FROM projects");
-            const ports = postData.rows.map((row: { hostport: string; }) => row.hostport);
-            const domainData = await connection.query("SELECT open_domain FROM projects");
-            const domains = domainData.rows.map((row: { open_domain: string; }) => row.open_domain);
-            // Convert to same type before comparison
+            const postData = await connection.query("SELECT hostport,name FROM projects");
+            const ports = postData.rows;
+            const domainData = await connection.query("SELECT open_domain,name FROM projects");
+            const domains = domainData.rows;
             const dstPortNum = Number(dstPort);
-            if (ports.some(p => Number(p) === dstPortNum) || domains.includes(uri)) {
+            // console.log(ports);
+            // console.log(domains);
+            // console.log(dstPortNum);
+            // [{ hostport: 4568, name: 'testproject' }]
+            // [{ open_domain: null, name: 'testproject' }]
+            // 32526
+            if(ports.some(p => Number(p.hostport) === dstPortNum)) {
                 console.log('Data is being inserted');
-                const insertQuery = `INSERT INTO traffic (srcip, country, timesta, useragent, browser, browserversion, os, device, fullurl) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
-                const values = [srcIp, country, time, userAgent, uaInfo.browser, uaInfo.version, uaInfo.os, uaInfo.device, uri];
+                const name = ports.find(p => Number(p.hostport) === dstPortNum).name;
+                console.log(name);
+                const insertQuery = `INSERT INTO traffic (name,srcip, country, timesta, useragent, browser, browserversion, os, device, fullurl) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`;
+                const values = [name,srcIp, country, time, userAgent, uaInfo.browser, uaInfo.version, uaInfo.os, uaInfo.device, uri];
+                await connection.query(insertQuery, values);
+            }
+            else if(domains.some(d => uri.includes(d.open_domain))) {
+                console.log('Data is being inserted');
+                const name = domains.find(d => uri.includes(d.open_domain)).name;
+                console.log(name);
+                const insertQuery = `INSERT INTO traffic (name,srcip, country, timesta, useragent, browser, browserversion, os, device, fullurl) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`;
+                const values = [name,srcIp, country, time, userAgent, uaInfo.browser, uaInfo.version, uaInfo.os, uaInfo.device, uri];
                 await connection.query(insertQuery, values);
             }
 

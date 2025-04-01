@@ -34,6 +34,7 @@ CREATE TABLE deployments (
 
 CREATE TABLE traffic (
     id SERIAL PRIMARY KEY, -- Automatically generates unique IDs
+    name VARCHAR(255) NOT NULL,
     srcip VARCHAR(255),
     country VARCHAR(255),
     timesta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
