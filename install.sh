@@ -35,6 +35,7 @@ installDockerDebian() {
     sudo rm -f /etc/caddy/Caddyfile && echo -e "{\n    admin localhost:2019\n}" | sudo tee /etc/caddy/Caddyfile > /dev/null
     sudo systemctl restart caddy
     sudo apt install build-essential -y
+    echo "Docker installed"
 
 }
 installDockerCentos() {
@@ -66,6 +67,14 @@ cloneRepo() {
     cp env_example .env
     npm run build
     echo "Repo cloned"
+}
+
+installTshark() {
+    echo "Installing tshark"
+    echo "wireshark-common wireshark-common/install-setuid boolean true" | sudo debconf-set-selections
+    sudo apt update
+    sudo apt install -y tshark
+    echo "Tshark installed"
 }
 
 startNodeServerService() {
@@ -156,6 +165,7 @@ if [ -f /etc/debian_version ]; then
     echo "Debian based distro"
     installDockerDebian
     installNvmNodeDebian
+    installTshark
     cloneRepo
     setupPostgres
     startNodeServerService

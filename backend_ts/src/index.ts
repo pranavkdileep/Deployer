@@ -8,7 +8,7 @@ import fileUpload from 'express-fileupload'
 import http from 'http';
 import { WebSocketServer } from 'ws';
 import { terminalwss } from './handlers/terminalWss'
-
+import './managers/trafficAnalyser'
 
 dotenv.config()
 
